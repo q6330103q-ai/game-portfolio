@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>김준식 — JS / GAME ARCHIVE</title>
+  <meta name="description" content="게임을 만들고 플레이 가능한 세계로 완성하는 김준식의 게임 아카이브. 프로젝트, 실제 캡처, 제작 기록을 한곳에 모았습니다.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#101110">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:site_name" content="JS / GAME ARCHIVE">
+  <meta property="og:title" content="김준식 — JS / GAME ARCHIVE">
+  <meta property="og:description" content="직접 만든 게임과 프로토타입, 실제 캡처와 제작 기록을 모은 김준식의 게임 아카이브.">
+  <meta property="og:url" content="https://q6330103q-ai.github.io/game-portfolio/">
+  <meta property="og:image" content="https://q6330103q-ai.github.io/game-portfolio/media/lucky-play.webp">
+  <meta property="og:image:alt" content="Lucky Flick Survivor 알까기 실제 플레이 화면">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="김준식 — JS / GAME ARCHIVE">
+  <meta name="twitter:description" content="직접 만든 게임과 프로토타입, 실제 캡처와 제작 기록을 모은 김준식의 게임 아카이브.">
+  <meta name="twitter:image" content="https://q6330103q-ai.github.io/game-portfolio/media/lucky-play.webp">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%23101110'/%3E%3Ctext%20x='32'%20y='43'%20text-anchor='middle'%20font-family='monospace'%20font-size='26'%20font-weight='700'%20fill='%23d8ff36'%3EJS%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="games.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+
+  <div class="pointer-glow" id="pointerGlow" aria-hidden="true"></div>
+  <div class="scroll-progress" aria-hidden="true">
+    <span class="scroll-progress__bar" id="scrollProgress"></span>
+  </div>
+
+  <header class="site-header" id="siteHeader">
+    <div class="shell site-header__inner">
+      <a class="wordmark" href="#top" aria-label="JS 게임 아카이브, 맨 위로">
+        <span class="wordmark__mark">JS</span>
+        <span class="wordmark__slash" aria-hidden="true">/</span>
+        <span class="wordmark__text">GAME ARCHIVE</span>
+      </a>
+
+      <nav class="site-nav" aria-label="주요 섹션">
+        <a href="#projects">프로젝트</a>
+        <a href="#showreel">쇼릴</a>
+        <a href="#about">소개</a>
+      </nav>
+
+      <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="true" aria-label="전체 모션 끄기">
+        <span class="motion-toggle__dot" aria-hidden="true"></span>
+        <span class="motion-toggle__text">모션 <span id="motionState">ON</span></span>
+      </button>
+      <span class="sr-only" id="motionAnnounce" role="status" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="shell">
+      <div class="data-notice" id="dataNotice" role="alert" hidden>
+        <div class="data-notice__copy">
+          <p class="data-notice__label">ARCHIVE / ERROR</p>
+          <p class="data-notice__text" id="dataNoticeText">프로젝트 데이터를 불러오지 못했습니다.</p>
+        </div>
+        <button class="data-notice__retry" id="dataRetry" type="button">페이지 새로고침</button>
+      </div>
+    </div>
+
+    <section class="hero" id="top" aria-labelledby="heroTitle">
+      <div class="hero__grid" aria-hidden="true"></div>
+      <div class="shell hero__inner">
+        <div class="hero__copy">
+          <p class="hero__kicker">
+            <span class="hero__kicker-line" aria-hidden="true"></span>
+            <span>PLAY. BUILD. REPEAT.</span>
+            <span class="hero__kicker-meta">GAME ARCHIVE / 2026</span>
+          </p>
+          <h1 id="heroTitle">
+            내가 만든 세계,<br>
+            <span class="hero__phrase"><span class="hero__accent">플레이</span>로</span>
+            <span class="hero__phrase">이어지다.</span>
+          </h1>
+          <p class="hero__lede">
+            기획에서 멈추지 않고 직접 플레이할 수 있는 형태까지 만듭니다.
+            완성된 게임, 진행 중인 프로토타입, 작은 기술 실험을 한 아카이브에 기록합니다.
+          </p>
+          <div class="hero__actions">
+            <a class="button button--lime" href="#projects">프로젝트 둘러보기 <span aria-hidden="true">↘</span></a>
+            <a class="button button--ghost" href="#showreel">쇼릴 보기</a>
+          </div>
+          <dl class="hero__stats" aria-label="아카이브 통계">
+            <div class="hero__stat">
+              <dt>프로젝트 <span>PROJECTS</span></dt>
+              <dd data-stat="projects">—</dd>
+            </div>
+            <div class="hero__stat">
+              <dt>카테고리 <span>CATEGORIES</span></dt>
+              <dd data-stat="categories">—</dd>
+            </div>
+            <div class="hero__stat">
+              <dt>이미지 <span>IMAGES</span></dt>
+              <dd data-stat="images">—</dd>
+            </div>
+            <div class="hero__stat">
+              <dt>영상 <span>VIDEOS</span></dt>
+              <dd data-stat="videos">—</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="hero__visual" data-motion-scope aria-hidden="true">
+          <div class="hero__orbit hero__orbit--a"></div>
+          <div class="hero__orbit hero__orbit--b"></div>
+          <div class="hero__stage" id="heroStage">
+            <figure class="stage-card stage-card--a">
+              <div class="stage-card__float">
+                <div class="stage-card__frame stage-card__frame--type">
+                  <span class="stage-card__tag">JS / ARCHIVE</span>
+                  <span class="stage-card__type"><span>PLAY.</span><span>BUILD.</span><span>REPEAT.</span></span>
+                  <span class="stage-card__label"><span>SELECTED WORK</span><span>2026</span></span>
+                </div>
+              </div>
+            </figure>
+            <figure class="stage-card stage-card--b">
+              <div class="stage-card__float">
+                <div class="stage-card__frame stage-card__frame--type">
+                  <span class="stage-card__tag">GAME DESIGN</span>
+                  <span class="stage-card__type"><span>PLAY.</span><span>BUILD.</span><span>REPEAT.</span></span>
+                  <span class="stage-card__label"><span>SELECTED WORK</span><span>2026</span></span>
+                </div>
+              </div>
+            </figure>
+            <figure class="stage-card stage-card--c">
+              <div class="stage-card__float">
+                <div class="stage-card__frame stage-card__frame--type">
+                  <span class="stage-card__tag">INTERACTIVE</span>
+                  <span class="stage-card__type"><span>PLAY.</span><span>BUILD.</span><span>REPEAT.</span></span>
+                  <span class="stage-card__label"><span>SELECTED WORK</span><span>2026</span></span>
+                </div>
+              </div>
+            </figure>
+          </div>
+          <p class="hero__caption" id="heroFrameCount">SELECTED FRAMES / 00</p>
+        </div>
+      </div>
+
+      <div class="marquee" data-motion-scope aria-hidden="true">
+        <div class="marquee__track">
+          <div class="marquee__group">
+            <span class="marquee__item">PLAY.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">BUILD.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">REPEAT.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">PLAY.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">BUILD.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">REPEAT.</span><span class="marquee__dot"></span>
+          </div>
+          <div class="marquee__group">
+            <span class="marquee__item">PLAY.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">BUILD.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">REPEAT.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">PLAY.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">BUILD.</span><span class="marquee__dot"></span>
+            <span class="marquee__item">REPEAT.</span><span class="marquee__dot"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects" id="projects" aria-labelledby="projectsTitle">
+      <div class="shell">
+        <header class="section-head" data-reveal>
+          <p class="section-index">01 / SELECTED WORK</p>
+          <div class="section-head__row">
+            <h2 id="projectsTitle">대표 프로젝트</h2>
+            <p class="section-head__note">직접 만들고 다듬은 세계.<br>카드를 열어 제작 정보와 실제 캡처를 확인하세요.</p>
+          </div>
+        </header>
+
+        <div class="featured-grid" id="featuredGrid" aria-busy="true">
+          <article class="skeleton-card skeleton-card--lead" aria-hidden="true">
+            <div class="skeleton-card__media"></div>
+            <div class="skeleton-card__body">
+              <span class="skeleton-line skeleton-line--short"></span>
+              <span class="skeleton-line skeleton-line--title"></span>
+              <span class="skeleton-line"></span>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-card__media"></div>
+            <div class="skeleton-card__body">
+              <span class="skeleton-line skeleton-line--short"></span>
+              <span class="skeleton-line skeleton-line--title"></span>
+            </div>
+          </article>
+          <article class="skeleton-card" aria-hidden="true">
+            <div class="skeleton-card__media"></div>
+            <div class="skeleton-card__body">
+              <span class="skeleton-line skeleton-line--short"></span>
+              <span class="skeleton-line skeleton-line--title"></span>
+            </div>
+          </article>
+        </div>
+
+        <section class="archive" aria-labelledby="archiveTitle">
+          <div class="archive__head">
+            <div>
+              <p class="section-index">02 / FULL ARCHIVE</p>
+              <h2 id="archiveTitle">전체 프로젝트</h2>
+            </div>
+            <p class="archive__meta" id="archiveMeta" role="status" aria-live="polite">아카이브 불러오는 중</p>
+          </div>
+
+          <div class="archive-controls">
+            <div class="search">
+              <label class="search__label" for="projectSearch">SEARCH PROJECTS</label>
+              <div class="search__field">
+                <span class="search__icon" aria-hidden="true">⌕</span>
+                <input id="projectSearch" type="search" placeholder="제목, 엔진, 키워드로 검색" autocomplete="off" spellcheck="false">
+              </div>
+            </div>
+
+            <div class="filter" id="categoryFilters" role="group" aria-label="카테고리 필터" aria-busy="true"></div>
+
+            <button class="reset-filters" id="resetFilters" type="button" hidden>필터 초기화</button>
+          </div>
+
+          <div class="project-grid" id="projectGrid" aria-busy="true">
+            <article class="skeleton-card" aria-hidden="true">
+              <div class="skeleton-card__media"></div>
+              <div class="skeleton-card__body">
+                <span class="skeleton-line skeleton-line--short"></span>
+                <span class="skeleton-line skeleton-line--title"></span>
+              </div>
+            </article>
+            <article class="skeleton-card" aria-hidden="true">
+              <div class="skeleton-card__media"></div>
+              <div class="skeleton-card__body">
+                <span class="skeleton-line skeleton-line--short"></span>
+                <span class="skeleton-line skeleton-line--title"></span>
+              </div>
+            </article>
+            <article class="skeleton-card" aria-hidden="true">
+              <div class="skeleton-card__media"></div>
+              <div class="skeleton-card__body">
+                <span class="skeleton-line skeleton-line--short"></span>
+                <span class="skeleton-line skeleton-line--title"></span>
+              </div>
+            </article>
+          </div>
+
+          <div class="empty-state" id="archiveEmpty" hidden>
+            <p class="empty-state__code">NO RESULTS / 00</p>
+            <h3 id="emptyTitle">조건에 맞는 프로젝트가 없습니다.</h3>
+            <p id="emptyText">검색어를 줄이거나 다른 카테고리를 선택해 보세요.</p>
+            <button class="button button--lime empty-state__reset" id="emptyReset" type="button">전체 프로젝트 보기</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="section showreel" id="showreel" aria-labelledby="showreelHeading">
+      <div class="shell">
+        <header class="section-head" data-reveal>
+          <p class="section-index">03 / SHOWREEL</p>
+          <div class="section-head__row">
+            <h2 id="showreelHeading">쇼릴</h2>
+            <p class="section-head__note">실제로 등록된 영상만 모았습니다.<br>플레이 녹화, 프로모, 개발 캡처, 실험 영상을 구분해 표시합니다.</p>
+          </div>
+        </header>
+
+        <div class="showreel__frame" data-motion-scope>
+          <div class="showreel__sidebar">
+            <p class="showreel__label">PLAYLIST <span id="showreelCount">[ 00 ]</span></p>
+            <div class="showreel__tabs" id="showreelTabs" role="tablist" aria-label="쇼릴 영상" aria-busy="true"></div>
+            <p class="showreel__hint" id="showreelHint">영상 목록을 불러오는 중입니다.</p>
+          </div>
+
+          <div class="showreel__main">
+            <div class="showreel__stage" id="showreelPanel" role="tabpanel" tabindex="0" aria-label="쇼릴 플레이어">
+              <div class="showreel__empty" id="showreelEmpty">
+                <p class="showreel__empty-code">SHOWREEL / 00</p>
+                <h3>등록된 영상을 확인하고 있습니다.</h3>
+                <p>실제 영상 데이터가 있을 때만 이곳에 플레이어가 표시됩니다.</p>
+              </div>
+              <video class="showreel__video" id="showreelVideo" controls playsinline preload="metadata" hidden></video>
+              <p class="showreel__error" id="showreelError" hidden>이 영상을 재생할 수 없습니다. 다른 영상을 선택해 주세요.</p>
+            </div>
+            <div class="showreel__meta" id="showreelMeta" hidden>
+              <div class="showreel__meta-copy">
+                <p class="showreel__meta-game" id="showreelGame"></p>
+                <h3 id="showreelVideoTitle"></h3>
+                <p id="showreelCaption"></p>
+              </div>
+              <p class="showreel__meta-count" id="showreelMetaCount"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" id="about" aria-labelledby="aboutTitle">
+    <div class="shell">
+      <div class="footer__grid">
+        <div class="footer__intro" data-reveal>
+          <p class="section-index">04 / PROCESS &amp; NOTES</p>
+          <h2 id="aboutTitle">작게 시작하고,<br>끝까지 <em>플레이</em>되게.</h2>
+          <p class="footer__lede">
+            아이디어를 작게 정의하고, 플레이 가능한 형태로 빌드한 뒤, 직접 플레이하며 다듬습니다.
+            완성도와 검증 수준이 다른 작업은 섞지 않고 상태를 그대로 기록합니다.
+          </p>
+          <ol class="process">
+            <li>
+              <span class="process__index">01</span>
+              <h3>IDEA</h3>
+              <p>핵심 재미와 범위를 작게 정의합니다.</p>
+            </li>
+            <li>
+              <span class="process__index">02</span>
+              <h3>BUILD</h3>
+              <p>직접 만질 수 있는 프로토타입으로 만듭니다.</p>
+            </li>
+            <li>
+              <span class="process__index">03</span>
+              <h3>PLAY</h3>
+              <p>플레이 감각을 확인하고 다시 다듬습니다.</p>
+            </li>
+          </ol>
+        </div>
+
+        <aside class="footer__notes" aria-labelledby="notesTitle" data-reveal>
+          <div class="notes__head">
+            <p class="section-index">NOTES / SCOPE &amp; PROVENANCE</p>
+            <h3 id="notesTitle">제작 노트</h3>
+          </div>
+          <div class="notes__legend" aria-label="노트 구분 안내">
+            <span class="note-badge note-badge--sample">샘플</span>
+            <span>공식 샘플·튜토리얼은 독립 창작 게임에서 제외합니다.</span>
+            <span class="note-badge note-badge--experiment">실험</span>
+            <span>실험·기술 데모는 완성 게임과 구분해 표시합니다.</span>
+          </div>
+          <ul class="notes-list" id="notesList" aria-busy="true"></ul>
+          <p class="notes-empty" id="notesEmpty">제작 노트를 불러오는 중입니다.</p>
+        </aside>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 <span id="footerName">김준식</span> · JS / GAME ARCHIVE</p>
+        <p class="footer__disclaimer">이미지와 영상의 성격은 각 항목의 설명에 표시했습니다.</p>
+        <a class="footer__top" href="#top">BACK TO TOP <span aria-hidden="true">↑</span></a>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="project-dialog" id="projectDialog" aria-label="프로젝트 상세">
+    <div class="dialog__shell">
+      <div class="dialog__bar">
+        <span class="dialog__eyebrow">PROJECT DOSSIER</span>
+        <button class="dialog__close" id="dialogClose" type="button" aria-label="프로젝트 상세 닫기">닫기 <span aria-hidden="true">×</span></button>
+      </div>
+      <div class="dialog__scroll" id="dialogScroll" tabindex="0" aria-label="프로젝트 상세 내용">
+        <div class="dialog__content" id="dialogContent"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <noscript>
+    <p class="noscript">이 아카이브는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 켜 주세요.</p>
+  </noscript>
+</body>
+</html>
