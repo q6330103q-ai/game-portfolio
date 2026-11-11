@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>게임 포트폴리오 — 김준식 · 시안 B 플레이 스크린</title>
+  <meta name="description" content="김준식의 게임 포트폴리오 시안 B. 최종 프로젝트 세 편을 골라 실제 빌드 영상과 사례를 보고, 전체 24편 기록을 확인합니다.">
+  <meta name="theme-color" content="#121316">
+  <meta name="color-scheme" content="dark">
+  <link rel="preload" href="../../../media/necro-guardian.webp" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="../../../fonts/pretendard-variable.css">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function (d) {
+      d.classList.add('js');
+      var calm = false;
+      try {
+        var saved = localStorage.getItem('gp-b-motion');
+        if (saved === 'off') calm = true;
+        else if (saved !== 'on') calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (e) {
+        calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      }
+      d.setAttribute('data-motion', calm ? 'off' : 'on');
+    })(document.documentElement);
+  </script>
+  <script src="../../../games.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="rail">
+    <a class="rail__back" href="../index.html"><span aria-hidden="true">←</span> 시안 비교 <span class="rail__letter">B</span></a>
+    <h1 class="rail__title">김준식 게임 포트폴리오</h1>
+    <p class="rail__line">Unity·Unreal로 만든 게임 24편. 최종 프로젝트를 고르면 영상과 사례가 바뀝니다.</p>
+    <nav class="rail__nav" aria-label="페이지 구역">
+      <a href="#cases">최종 사례</a>
+      <a href="#archive">전체 24편</a>
+      <a href="#notes">기록 원칙</a>
+    </nav>
+    <button class="motion" id="motionToggle" type="button" aria-pressed="false">
+      <span class="motion__dot" aria-hidden="true"></span><span class="motion__label">모션 줄이기</span>
+    </button>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <p class="data-error" id="dataError" role="alert" hidden>작품 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</p>
+
+    <section class="theater" id="theater" aria-labelledby="pickTitle">
+      <div class="picker">
+        <h2 class="picker__title" id="pickTitle">최종 프로젝트 3편</h2>
+        <div class="picks" id="picks" role="group" aria-label="최종 프로젝트 선택"></div>
+      </div>
+
+      <div class="screen" id="screen" aria-live="off">
+        <div class="screen__frame" id="screenFrame">
+          <img class="screen__ambient" id="screenAmbient" src="../../../media/necro-guardian.webp" alt="" aria-hidden="true">
+          <video class="screen__video" id="screenVideo" muted playsinline loop preload="metadata" poster="../../../media/necro-guardian.webp" width="540" height="1170"></video>
+          <button class="screen__bigplay" id="bigPlay" type="button" hidden>
+            <span class="screen__bigplay-icon" aria-hidden="true"></span><span>영상 재생</span>
+          </button>
+          <div class="screen__cut" id="screenCut" aria-hidden="true"></div>
+        </div>
+        <div class="transport">
+          <button class="transport__play" id="playToggle" type="button" aria-controls="screenVideo">
+            <span class="transport__icon" aria-hidden="true"></span><span class="transport__label">재생</span>
+          </button>
+          <div class="scrub" id="scrub">
+            <div class="scrub__track" aria-hidden="true"><div class="scrub__fill" id="scrubFill"></div></div>
+            <input class="scrub__input" id="scrubInput" type="range" min="0" max="1000" step="10" value="0" aria-label="영상 위치">
+          </div>
+          <span class="transport__time" id="timeLabel">0:00 / 0:00</span>
+        </div>
+        <div class="clips" id="clips" role="group" aria-label="영상 선택" hidden></div>
+        <p class="screen__caption" id="screenCaption"></p>
+        <div class="scenes" id="scenes" hidden></div>
+      </div>
+
+      <div class="slate" id="slate" aria-live="polite"></div>
+    </section>
+
+    <section class="cases" id="cases" aria-labelledby="casesTitle">
+      <div class="section-head">
+        <h2 id="casesTitle">최종 프로젝트 사례</h2>
+        <p>세 편의 목표, 핵심 시스템, 현재 상태와 실제 화면입니다.</p>
+      </div>
+      <div id="caseList"></div>
+    </section>
+
+    <section class="archive" id="archive" aria-labelledby="archiveTitle">
+      <div class="archive__preview" id="archivePreview" aria-hidden="true">
+        <div class="archive__frame">
+          <img class="archive__ambient" id="archiveAmbient" alt="">
+          <img class="archive__image" id="archiveImage" alt="">
+          <p class="archive__empty" id="archiveEmpty" hidden></p>
+        </div>
+        <p class="archive__cap" id="archiveCap"></p>
+      </div>
+      <div class="archive__body">
+        <div class="section-head section-head--tight">
+          <h2 id="archiveTitle">전체 24편</h2>
+          <p>직접 만든 게임과 프로토타입을 한 항목씩 정리했습니다. 항목을 누르면 설명·이미지·영상 기록이 열립니다.</p>
+        </div>
+        <ul class="rows" id="rows"></ul>
+      </div>
+    </section>
+
+    <section class="notes" id="notes" aria-labelledby="notesTitle">
+      <h2 id="notesTitle">기록 원칙</h2>
+      <div class="notes__grid" id="noteList"></div>
+    </section>
+  </main>
+
+  <footer class="end">
+    <img class="end__image" src="../../../media/pixel-frontier-cinematic.webp" alt="푸른 갑옷 기사가 성문 앞에 선 시네마틱 장면" width="1280" height="720" loading="lazy">
+    <div class="end__top">
+      <nav class="end__links" aria-label="바닥 링크">
+        <a href="#main">맨 위로</a>
+        <a href="#archive">전체 24편</a>
+        <a href="../index.html">시안 비교</a>
+      </nav>
+      <p class="end__cap">픽셀 전선 · 마지막 빛 · 30초 시네마틱 — VARCO 3D 생성 모델을 Blender에서 연출한 홍보 시네마틱 · 게임 플레이 화면 아님</p>
+    </div>
+    <p class="end__name">김준식</p>
+    <p class="end__legal">게임 포트폴리오 · 시안 B 플레이 스크린</p>
+  </footer>
+
+  <dialog class="detail" id="detail" aria-labelledby="detailTitle">
+    <div class="detail__bar">
+      <p class="detail__crumb" id="detailCrumb"></p>
+      <button class="detail__close" id="detailClose" type="button">닫기 <span aria-hidden="true">×</span></button>
+    </div>
+    <div class="detail__body" id="detailBody"></div>
+  </dialog>
+
+  <noscript><p class="noscript">이 시안은 작품 목록과 영상을 그리기 위해 JavaScript가 필요합니다.</p></noscript>
+</body>
+</html>

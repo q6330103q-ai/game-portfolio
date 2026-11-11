@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>게임 포트폴리오 — 김준식 · 시안 A 에디토리얼</title>
+  <meta name="description" content="김준식의 게임 포트폴리오 시안 A. 최종 프로젝트 세 편을 첫 화면에서 비교하고, 직접 만든 게임과 프로토타입 24편을 장르별 목차로 살펴봅니다.">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex">
+  <link rel="preload" href="../../../media/necro-guardian.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="../../../media/hanbit-clash.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="../../../media/mallang-sharing.webp" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="../../../fonts/pretendard-variable.css">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function (d) {
+      d.classList.add('js');
+      var mode = 'on';
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try {
+        var saved = localStorage.getItem('gp-r2a-motion');
+        mode = saved === 'on' || saved === 'off' ? saved : (reduce ? 'off' : 'on');
+      } catch (e) { mode = reduce ? 'off' : 'on'; }
+      d.setAttribute('data-motion', mode);
+    })(document.documentElement);
+  </script>
+  <script src="../../../games.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="bar">
+    <div class="bar__in">
+      <a class="bar__brand" href="#top" aria-label="김준식 게임 포트폴리오 맨 위로">김준식</a>
+      <nav class="bar__nav" aria-label="페이지 안 이동">
+        <a class="ulink" href="#top">최종작</a>
+        <a class="ulink" href="#compare">비교</a>
+        <a class="ulink" href="#archive">전체 작품</a>
+        <a class="ulink" href="#notes">제작 노트</a>
+      </nav>
+      <div class="bar__tools">
+        <span class="bar__letter">시안 A<span class="bar__letter-name"> · 에디토리얼</span></span>
+        <button class="bar__motion" id="motionToggle" type="button">모션 끄기</button>
+        <a class="bar__back" href="../index.html">시안 비교</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <p class="data-error" id="dataError" role="alert" hidden>작품 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</p>
+    <noscript><p class="data-error">이 시안은 작품 데이터를 스크립트로 불러옵니다. 스크립트를 켜면 최종작 세 편과 전체 작품 목록이 표시됩니다.</p></noscript>
+
+    <section class="cover" id="top" aria-labelledby="pageTitle">
+      <div class="masthead">
+        <h1 class="masthead__title" id="pageTitle"><span class="mask"><span class="mask__in">게임 포트폴리오</span></span></h1>
+        <p class="masthead__intro"><strong>김준식</strong>이 Unity와 Unreal로 만든 게임과 프로토타입 <span id="gameCount">24</span>편입니다. 최종 프로젝트 세 편을 먼저 비교해 보세요.</p>
+      </div>
+      <div class="finals" id="finals"></div>
+    </section>
+
+    <section class="compare" id="compare" aria-labelledby="compareTitle">
+      <div class="sec-head" data-reveal>
+        <h2 class="sec-head__title" id="compareTitle">세 편 나란히 보기</h2>
+        <p class="sec-head__text">장르, 엔진, 개발 기간과 어디까지 확인했는지를 같은 줄에 맞췄습니다. 고른 작품은 아래 버튼으로 바로 엽니다.</p>
+      </div>
+      <div class="compare__wrap" data-reveal>
+        <table class="compare__table" id="compareTable"></table>
+      </div>
+    </section>
+
+    <section class="archive" id="archive" aria-labelledby="archiveTitle">
+      <div class="sec-head" data-reveal>
+        <h2 class="sec-head__title" id="archiveTitle">전체 작품 <span id="archiveTotal">24</span>편</h2>
+        <p class="sec-head__text">최종작까지 포함해 장르별로 묶었습니다. 제목을 누르면 화면과 영상, 제작 기록을 담은 상세 기사가 열립니다.</p>
+      </div>
+      <div class="filters" id="filters" role="group" aria-label="작품 거르기"></div>
+      <p class="sr" id="archiveStatus" aria-live="polite"></p>
+      <div class="archive__groups" id="archiveGroups"></div>
+    </section>
+
+    <section class="notes" id="notes" aria-labelledby="notesTitle">
+      <div class="notes__in">
+        <div class="sec-head" data-reveal>
+          <h2 class="sec-head__title" id="notesTitle">제작 노트</h2>
+          <p class="sec-head__text">작품을 고르고 설명을 쓴 기준입니다. 캡션과 상태 표기는 이 원칙을 따릅니다.</p>
+        </div>
+        <div class="notes__grid" id="notesGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot__in">
+      <p class="foot__name">김준식</p>
+      <div class="foot__row">
+        <p class="foot__line">게임 포트폴리오 · 시안 A 에디토리얼</p>
+        <nav class="foot__links" aria-label="바닥 링크">
+          <a class="ulink" href="#top">맨 위로</a>
+          <a class="ulink" href="#archive">전체 작품</a>
+          <a class="ulink" href="../index.html">시안 비교</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="story" id="story" aria-labelledby="storyTitle">
+    <div class="story__bar">
+      <button class="story__close" id="storyClose" type="button"><span aria-hidden="true">←</span> 닫기</button>
+      <p class="story__crumb" id="storyCrumb"></p>
+      <div class="story__steps">
+        <button class="story__step" type="button" data-step="-1">이전 작품</button>
+        <button class="story__step" type="button" data-step="1">다음 작품</button>
+      </div>
+    </div>
+    <article class="story__body" id="storyBody"></article>
+    <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="화면 크게 보기" hidden>
+      <figure class="viewer__fig">
+        <img class="viewer__img" id="viewerImg" alt="">
+        <figcaption class="viewer__cap"><span id="viewerCount"></span> <span id="viewerCap"></span></figcaption>
+      </figure>
+      <button class="viewer__btn viewer__btn--close" id="viewerClose" type="button">닫기</button>
+      <button class="viewer__btn viewer__btn--prev" id="viewerPrev" type="button">이전 화면</button>
+      <button class="viewer__btn viewer__btn--next" id="viewerNext" type="button">다음 화면</button>
+    </div>
+  </dialog>
+</body>
+</html>

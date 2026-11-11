@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f1f2f4">
+  <title>네 가지 시안 비교 · 김준식 게임 포트폴리오</title>
+  <link rel="stylesheet" href="../../fonts/pretendard-variable.css">
+  <link rel="stylesheet" href="compare.css">
+  <script src="compare.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#concepts">시안으로 건너뛰기</a>
+  <main>
+    <header class="intro">
+      <div><p class="owner">김준식 · 게임 포트폴리오</p><h1>네 가지 시안 비교</h1><p class="summary">같은 게임, 다른 구성. 화면을 비교하고 직접 눌러보세요.</p></div>
+      <a class="current" href="../../">현재 사이트</a>
+    </header>
+    <section class="toolbar" aria-label="미리보기 설정">
+      <p>최종작 3편과 전체 작품 24편을 담은 별도 시안입니다.</p>
+      <div class="view-switch" role="group" aria-label="미리보기 화면 크기">
+        <button type="button" data-mode="desktop" aria-pressed="true">PC 화면</button>
+        <button type="button" data-mode="mobile" aria-pressed="false">모바일 화면</button>
+      </div>
+    </section>
+    <div class="concepts" id="concepts">
+      <article class="concept" id="a">
+        <header class="concept-heading"><h2>A · 에디토리얼</h2><a href="a/">A 시안 열기 <span aria-hidden="true">↗</span></a></header>
+        <button class="preview" type="button" data-preview="a" aria-label="A 에디토리얼 PC 화면 크게 보기"><img src="previews/a-desktop.webp" alt="A 에디토리얼 시안의 실제 PC 화면" width="1440" height="1000"></button>
+        <div class="description"><p>최종작 세 편을 한눈에.</p><span>밝은 지면 · 선명한 작품 구분 · 비교하기 쉬운 구성</span></div>
+      </article>
+      <article class="concept" id="b">
+        <header class="concept-heading"><h2>B · 플레이 스크린</h2><a href="b/">B 시안 열기 <span aria-hidden="true">↗</span></a></header>
+        <button class="preview" type="button" data-preview="b" aria-label="B 플레이 스크린 PC 화면 크게 보기"><img src="previews/b-desktop.webp" alt="B 플레이 스크린 시안의 실제 PC 화면" width="1440" height="1000"></button>
+        <div class="description"><p>고른 게임에 집중하는 큰 화면.</p><span>어두운 상영관 · 직접 선택하는 영상 · 명확한 재생 조작</span></div>
+      </article>
+      <article class="concept" id="c">
+        <header class="concept-heading"><h2>C · 게임 포스터</h2><a href="c/">C 시안 열기 <span aria-hidden="true">↗</span></a></header>
+        <button class="preview" type="button" data-preview="c" aria-label="C 게임 포스터 PC 화면 크게 보기"><img src="previews/c-desktop.webp" alt="C 게임 포스터 시안의 실제 PC 화면" width="1440" height="1000"></button>
+        <div class="description"><p>게임 아트와 제목을 대담하게.</p><span>붉은색 포인트 · 큰 타이포그래피 · 포스터형 작품 소개</span></div>
+      </article>
+      <article class="concept" id="d">
+        <header class="concept-heading"><h2>D · 크리에이터 노트</h2><a href="d/">D 시안 열기 <span aria-hidden="true">↗</span></a></header>
+        <button class="preview" type="button" data-preview="d" aria-label="D 크리에이터 노트 PC 화면 크게 보기"><img src="previews/d-desktop.webp" alt="D 크리에이터 노트 시안의 실제 PC 화면" width="1440" height="1000"></button>
+        <div class="description"><p>작품을 고르며 제작 과정을 읽기.</p><span>차분한 푸른 지면 · 작품 목차 · 이미지와 설명의 균형</span></div>
+      </article>
+    </div>
+    <footer><p>이 페이지는 선택용 비교 화면입니다. 시안을 열어도 현재 사이트는 바뀌지 않습니다.</p><p>마음에 드는 안을 A · B · C · D로 알려주세요.</p><a href="../../fonts/LICENSE.txt">Pretendard 서체 라이선스</a></footer>
+  </main>
+  <dialog id="previewDialog" aria-labelledby="previewTitle">
+    <div class="dialog-bar"><h2 id="previewTitle">시안 미리보기</h2><div><a id="previewLink" href="a/">시안 직접 열기</a><button id="closePreview" type="button">닫기 <span aria-hidden="true">×</span></button></div></div>
+    <div class="dialog-canvas"><img id="largePreview" alt=""></div>
+  </dialog>
+</body>
+</html>

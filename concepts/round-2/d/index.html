@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>게임 포트폴리오 · 김준식 — 시안 D 크리에이터 노트</title>
+  <meta name="description" content="김준식의 게임 포트폴리오. 최종 프로젝트 세 편과 Unity·Unreal로 만든 게임·프로토타입 24편을 플레이 녹화·캡처와 제작 기록으로 정리한 제작 노트 시안입니다.">
+  <meta name="theme-color" content="#e4ecf5">
+  <meta name="color-scheme" content="light">
+  <link rel="preload" href="../../../media/necro-guardian.webp" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="../../../fonts/pretendard-variable.css">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function (d) {
+      d.classList.add('js');
+      var mode = 'on';
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try {
+        var saved = localStorage.getItem('gp-d-motion');
+        mode = saved === 'on' || saved === 'off' ? saved : (reduce ? 'off' : 'on');
+      } catch (e) { mode = reduce ? 'off' : 'on'; }
+      d.setAttribute('data-motion', mode);
+    })(document.documentElement);
+  </script>
+  <script src="../../../games.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <div class="book" id="top">
+    <aside class="rail" aria-label="작업 목차">
+      <div class="rail__top">
+        <a class="back" href="../index.html"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10.5 2.5 5 8l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>시안 비교</a>
+        <span class="rail__letter">시안 D · 크리에이터 노트</span>
+        <button class="motion" id="motionToggle" type="button" aria-pressed="false">모션 끄기</button>
+      </div>
+
+      <header class="intro">
+        <h1 class="intro__title">게임 포트폴리오</h1>
+        <p class="intro__name">김준식의 게임과 프로토타입 24편</p>
+        <p class="intro__lede">Unity와 Unreal로 만든 작업을 플레이 녹화·캡처와 제작 기록으로 정리했습니다. 최종 프로젝트 세 편부터 펼쳐 두었습니다.</p>
+      </header>
+
+      <nav class="finals" id="finals" aria-labelledby="finalsHead">
+        <h2 class="finals__head" id="finalsHead">최종 프로젝트 3편</h2>
+        <div class="tabs" role="tablist" aria-labelledby="finalsHead">
+          <button class="tab" role="tab" id="tab-necro-climb" data-id="necro-climb" aria-controls="project" aria-selected="true" type="button">
+            <span class="tab__thumb"><img src="../../../media/necro-guardian.webp" alt="" width="540" height="1170" style="object-position:50% 30%"></span>
+            <span class="tab__text"><span class="tab__title">NECRO CLIMB</span><span class="tab__meta">디펜스 · 2026.11</span></span>
+          </button>
+          <button class="tab" role="tab" id="tab-football-director" data-id="football-director" aria-controls="project" aria-selected="false" tabindex="-1" type="button">
+            <span class="tab__thumb"><img src="../../../media/hanbit-clash.webp" alt="" width="1280" height="720" loading="lazy"></span>
+            <span class="tab__text"><span class="tab__title">한빛 감독 축구</span><span class="tab__meta">스포츠 · 2026.11</span></span>
+          </button>
+          <button class="tab" role="tab" id="tab-mallang-shelter" data-id="mallang-shelter" aria-controls="project" aria-selected="false" tabindex="-1" type="button">
+            <span class="tab__thumb"><img src="../../../media/mallang-sharing.webp" alt="" width="540" height="960" loading="lazy" style="object-position:50% 35%"></span>
+            <span class="tab__text"><span class="tab__title">말랑이 보호소</span><span class="tab__meta">시뮬레이션 · 2026.11</span></span>
+          </button>
+        </div>
+      </nav>
+
+      <nav class="toc" aria-label="이 노트의 차례">
+        <ul class="toc__list">
+          <li><a class="toc__link" href="#project">최종 프로젝트</a></li>
+          <li><a class="toc__link" href="#case">작업 노트</a></li>
+          <li><a class="toc__link" href="#archive">전체 작품 24편</a></li>
+          <li><a class="toc__link" href="#notes">제작 노트</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="page" id="main" tabindex="-1">
+      <p class="data-error" id="dataError" role="alert" hidden>작품 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</p>
+
+      <article class="project" id="project" role="tabpanel" aria-labelledby="tab-necro-climb" tabindex="-1">
+        <section class="spread" id="spread" data-anchor="spread" aria-labelledby="spreadTitle">
+          <div class="spread__plates" id="plates"></div>
+          <div class="spread__copy" id="spreadCopy">
+            <h2 class="spread__title" id="spreadTitle">NECRO CLIMB</h2>
+            <p class="spread__sub">망자의 군단을 세워 인간의 성채를 오르는 세로형 강령술사 기지전.</p>
+          </div>
+        </section>
+
+        <section class="case" id="case" aria-labelledby="caseTitle">
+          <h2 class="case__title" id="caseTitle">작업 노트</h2>
+          <div class="case__body" id="caseBody"></div>
+        </section>
+      </article>
+
+      <section class="archive" id="archive" aria-labelledby="archiveTitle">
+        <div class="archive__head" data-reveal>
+          <h2 class="archive__title" id="archiveTitle">전체 작품 24편</h2>
+          <p class="archive__note">완성작부터 소스만 남은 원형까지, 어디까지 확인했는지를 작품마다 적었습니다. 행을 누르면 작품 노트가 열립니다.</p>
+        </div>
+        <div class="filters" id="filters" role="group" aria-label="장르로 거르기" data-reveal></div>
+        <p class="archive__count" id="archiveCount" role="status" aria-live="polite"></p>
+        <div class="archive__body">
+          <ul class="rows" id="rows"></ul>
+          <div class="preview" id="preview" aria-hidden="true">
+            <div class="preview__stage" id="previewStage"></div>
+            <p class="preview__title" id="previewTitle"></p>
+            <p class="preview__status" id="previewStatus"></p>
+            <p class="preview__caption" id="previewCaption"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes" id="notes" aria-labelledby="notesTitle">
+        <div class="notes__sheet">
+          <div class="notes__head" data-reveal>
+            <h2 class="notes__title" id="notesTitle">제작 노트</h2>
+            <p class="notes__lede">무엇을 담았고, 화면의 출처와 상태를 어떻게 적었는지 밝혀 둡니다.</p>
+          </div>
+          <div class="notes__list" id="notesList"></div>
+        </div>
+      </section>
+
+      <footer class="end">
+        <div class="end__card">
+          <p class="end__line">게임 포트폴리오 · 김준식</p>
+          <nav class="end__nav" aria-label="바닥글 이동">
+            <a href="#top" id="toTop">맨 위로</a>
+            <a href="#archive">전체 작품 24편</a>
+            <a href="#notes">제작 노트</a>
+            <a href="../index.html">시안 비교</a>
+          </nav>
+          <div class="end__fine">
+            <p>이미지와 영상의 출처와 상태는 각 작품의 설명과 캡션에 적었습니다.</p>
+            <p>서체 Pretendard · <a href="../../../fonts/LICENSE.txt">SIL Open Font License 1.1</a></p>
+          </div>
+        </div>
+        <p class="end__name" aria-hidden="true">김준식</p>
+      </footer>
+    </main>
+  </div>
+
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet__bar">
+      <p class="sheet__crumb" id="sheetCrumb"></p>
+      <div class="sheet__steps">
+        <button class="sheet__step" id="sheetPrev" type="button">이전 작품</button>
+        <button class="sheet__step" id="sheetNext" type="button">다음 작품</button>
+        <button class="sheet__close" id="sheetClose" type="button">닫기</button>
+      </div>
+    </div>
+    <div class="sheet__body" id="sheetBody"></div>
+  </dialog>
+
+  <noscript><p class="noscript">이 시안은 작품 데이터를 스크립트로 불러옵니다. 스크립트를 켜면 24편의 작품 노트를 볼 수 있습니다.</p></noscript>
+</body>
+</html>
