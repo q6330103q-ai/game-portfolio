@@ -54,7 +54,7 @@ window.PORTFOLIO = {
     },
     {
       id:'team-rpg',title:'3분',subtitle:'3분 뒤 세상이 불탄다. 죽어도 다시, 시간을 되돌려라.',
-      engine:'Unity 6 · URP · C#',category:'RPG',status:'Windows 빌드 · 실제 플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',featured:true,
+      engine:'Unity 6 · URP · C#',category:'RPG',status:'Windows 빌드 · 실제 플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',role:'그래픽 · 컨셉아트 · 프로토타입 제작',featured:true,
       tools:['Unity 6 URP','VARCO 3D','Blender'],
       description:'화룡 이그니스가 3분 뒤 세상을 불태우겠다고 선언하자, 시간의 신이 주인공에게 시간회귀 능력을 주며 시작하는 쿼터뷰 3D 액션 RPG입니다. 3분 안에 아이템 3개와 동료 2명을 모아 화룡을 쓰러뜨려야 하며, 죽거나 시간이 다 되면 처음으로 돌아가 다시 도전합니다. 팀 우당탕의 프로젝트로, Windows 빌드 플레이 녹화와 33초 편집 프로모를 함께 실었습니다.',
       features:['3분 제한과 시간회귀 루프 · 시계 HUD','신의 능력 뽑기 연출과 동료 영입(사냥꾼 로완 기절 화살)','방패·대장장이 브룬 강화·발판 퍼즐·대시로 절벽 건너기','화룡 이그니스(HP 3000) · 브레스·용암 바닥·분노 단계'],
@@ -152,7 +152,7 @@ window.PORTFOLIO = {
     },
     {
       id:'last-verdict',title:'FINAL VERDICT',subtitle:'최후의 평결 · 일하고, 의심하고, 살아남는다.',
-      engine:'Unity 6 · HDRP · Netcode',category:'추리',status:'Windows 빌드 · 실제 플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',
+      engine:'Unity 6 · HDRP · Netcode',category:'추리',status:'Windows 빌드 · 실제 플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',role:'그래픽 · 컨셉아트 · 프로토타입 제작',
       description:'저택에 모인 참가자들이 일해서 돈을 벌고 배고픔·화장실·졸림 같은 생존 욕구를 관리하는 1인칭 멀티플레이 추리 게임입니다. 탈출권 구매, 무기 배송, 시신 신고와 재판 투표가 경쟁과 의심을 만듭니다. 최신 빌드는 방 목록과 UDP 직접 접속을 사용하며, 대기실은 4~10명과 봇 추가를 지원합니다.',
       features:['참가 서약 대기실 · 방 목록·로컬 호스트 · 봇 추가','작업 제안과 수입 순위 · 탈출권 구매와 탈출','칼·총 내 방 서랍 배송 · 시신 신고와 재판 투표','배고픔·화장실·졸림 욕구 · 근접 음성 · 유령 관전과 리플레이'],
       images:[
@@ -166,10 +166,11 @@ window.PORTFOLIO = {
     },
     {
       id:'mukbot',title:'먹봇',subtitle:'MUKBOT OVERCONSUMPTION · 불시착한 로봇들, 그중 하나가 에너지를 훔쳐 먹는다.',
-      engine:'Unity 6 · URP · Netcode',category:'추리',status:'Windows 빌드 · 실제 멀티플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',
+      engine:'Unity 6 · URP · Netcode',category:'추리',status:'Windows 빌드 · 실제 멀티플레이 녹화',year:'2026',team:'팀 프로젝트 · 우당탕',role:'그래픽 · 컨셉아트 · 프로토타입 제작',
       tools:['Unity 6 URP','Netcode for GameObjects','VARCO 3D 로봇 모델'],
-      description:'붉은 행성에 불시착한 로봇들이 낮에는 에너지 셀을 모아 납품하고 배터리를 충전하는 동안, 숨어 있는 먹봇이 다른 로봇의 에너지를 빼앗는 소셜 디덕션 게임입니다. 밤에는 충전소 리포트와 토론, 투표로 먹봇을 찾아 추방합니다. 팀 우당탕이 일주일 동안 만든 프로젝트로, 실제 멀티플레이 녹화에서 장면을 가져왔습니다.',
+      description:'붉은 행성에 불시착한 로봇들이 낮에는 에너지 셀을 모아 납품하고 배터리를 충전하는 동안, 숨어 있는 먹봇이 다른 로봇의 에너지를 빼앗는 소셜 디덕션 게임입니다. 밤에는 충전소 리포트와 토론, 투표로 먹봇을 찾아 추방합니다. 정글의 마지막 식량을 이어서 만든 최종 버전으로, 팀 우당탕이 완성했으며 실제 멀티플레이 녹화에서 장면을 가져왔습니다.',
       features:['낮 → 리포트 → 토론 → 투표 페이즈 진행','셀 수집·운반·할당량 납품과 배터리 충전 · 0이면 셧다운','먹봇의 에너지 강탈과 붉은 LED·저전력 경고음 단서','LAN·전용 서버 접속 · 셧다운 후 유령 관전 · 판 기록과 리플레이'],
+      history:['정글의 마지막 식량 · 공용 식량·허기·과식 스파이를 다룬 6인 정글 생존 원형','먹봇 · 로봇·에너지 테마로 바꾼 최종 버전(셀·배터리·에너지 강탈)'],
       images:[
         {src:'media/mukbot-day1.webp',alt:'고리 행성 하늘 아래 1일차 시작과 배터리 HUD',caption:'실제 플레이 녹화 프레임 · 1일차 시작'},
         {src:'media/mukbot-collect.webp',alt:'수집 지점에서 셀을 모으는 장면',caption:'실제 플레이 녹화 프레임 · 셀 수집'},
@@ -295,9 +296,9 @@ window.PORTFOLIO = {
       images:[{src:'media/aurora.webp',alt:'AURORA 시설 탈출 방 생성 화면',caption:'실제 게임 캡처 · 6~10인 초기 프로토타입 0.1 메뉴'}],videos:[]
     },
     {
-      id:'mafia',title:'정글의 마지막 식량',subtitle:'공유하는 식량, 숨겨진 스파이.',
-      engine:'Unity 6 · C#',category:'추리',status:'멀티플레이 빌드',year:'2026',
-      description:'정글에서 공용 식량을 두고 생존하는 6인 스파이 게임. 낮과 밤, 허기와 식량 채집이 협력과 의심의 조건이 됩니다.',
+      id:'mafia',title:'정글의 마지막 식량',subtitle:'공유하는 식량, 숨겨진 스파이. 먹봇의 원형.',
+      engine:'Unity 6 · C#',category:'추리',status:'멀티플레이 빌드 · 먹봇으로 발전',year:'2026',
+      description:'정글에서 공용 식량을 두고 생존하는 6인 스파이 게임. 낮과 밤, 허기와 식량 채집이 협력과 의심의 조건이 됩니다. 이 규칙을 로봇·에너지 테마로 이어 만든 최종 게임이 먹봇입니다.',
       features:['6인 스파이 생존 규칙','4일간의 낮·밤 진행','식량 채집·허기·과식','호스트·게스트 접속'],
       images:[{src:'media/mafia.webp',alt:'정글의 마지막 식량 3D 플레이 화면',caption:'실제 개발 캡처 · 호스트/게스트 연결 화면'}],videos:[]
     },
@@ -340,7 +341,7 @@ window.PORTFOLIO = {
     {title:'화면의 출처', text:'모든 이미지와 영상 설명에 출처를 적었습니다. 직접 실행 캡처, 플레이 녹화, 프로젝트 안의 기존 캡처, 에디터·자동 검증 화면, 시네마틱·렌더를 구분하며, 다른 게임의 화면을 대신 쓰지 않습니다.'},
     {title:'상태 표기', text:'상태 칸은 확인한 수준만 적습니다. 빌드를 직접 실행했는지, 녹화만 있는지, 소스만 있는지 구분하며 출시·실기기 검증을 하지 않은 작업은 그렇게 표기합니다.'},
     {title:'AI 도구 활용', text:'여러 프로젝트에서 VARCO 3D 생성 모델, 이미지 생성 아트, AI 코딩 에이전트를 활용했습니다. 해당 프로젝트의 제작 도구 항목과 캡션에 밝혔습니다.'},
-    {title:'팀 프로젝트', text:'3분, 먹봇, FINAL VERDICT는 팀 우당탕의 프로젝트입니다.'},
+    {title:'팀 프로젝트', text:'3분, 먹봇, FINAL VERDICT는 팀 우당탕의 프로젝트이며, 그래픽·컨셉아트·프로토타입 제작을 맡았습니다. 먹봇은 정글의 마지막 식량을 이어서 만든 최종 게임입니다.'},
     {title:'제외한 폴더', text:'Unity·Unreal 빈 템플릿과 공식 샘플(HDRP 3D Sample, URP 샘플, Tanks 튜토리얼), 에셋 스토어 샘플(Time Ghost), 외부 오픈소스 도구(pixelfx), 제3자 IP 팬게임 배포본과 상용 게임 저장 폴더는 창작 게임 수에 넣지 않았습니다.', kind:'sample'}
   ]
 };

@@ -132,6 +132,7 @@
       year: clean(raw.year),
       period: clean(raw.period),
       team: clean(raw.team),
+      role: clean(raw.role),
       tools: tools,
       history: history,
       features: features,
@@ -802,6 +803,7 @@
       game.year,
       game.period,
       game.team,
+      game.role,
       game.description
     ].concat(game.features, game.tools, game.history).join(' ').toLowerCase();
 
@@ -1319,6 +1321,7 @@
       ['상태', game.status],
       ['기간', game.period || game.year],
       ['팀', game.team],
+      ['담당', game.role],
       ['제작 도구', game.tools.join(' · ')]
     ];
 
