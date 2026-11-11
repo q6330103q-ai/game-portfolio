@@ -974,13 +974,13 @@ html.motion-off .motion-toggle__text {
 }
 
 .project-card__status {
-  max-width: 70%;
-  overflow: hidden;
+  max-width: 72%;
   padding: 3px 7px;
   border: 1px solid var(--line);
   color: var(--muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.5;
+  text-align: right;
+  word-break: keep-all;
 }
 
 .project-card__open {
@@ -1409,6 +1409,8 @@ html.motion-off .motion-toggle__text {
 }
 
 .showreel__video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   background: #000;
@@ -1894,7 +1896,7 @@ html.motion-off .motion-toggle__text {
   margin-bottom: 14px;
   color: var(--ivory);
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1910,7 +1912,7 @@ html.motion-off .motion-toggle__text {
   position: relative;
   padding-left: 15px;
   color: #c6c8ba;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.65;
   word-break: keep-all;
 }
@@ -1935,7 +1937,7 @@ html.motion-off .motion-toggle__text {
 
 .dialog__fact {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr);
+  grid-template-columns: 82px minmax(0, 1fr);
   gap: 12px;
   padding: 9px 0;
   border-bottom: 1px solid var(--line);
@@ -1944,16 +1946,53 @@ html.motion-off .motion-toggle__text {
 .dialog__fact dt {
   color: var(--muted-2);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   line-height: 1.7;
 }
 
 .dialog__fact dd {
   color: var(--ivory);
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.65;
   overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.dialog__history {
+  margin-top: clamp(30px, 4vw, 48px);
+  padding-top: clamp(24px, 3vw, 36px);
+  border-top: 1px solid var(--line);
+}
+
+.devlog {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: devlog;
+}
+
+.devlog li {
+  position: relative;
+  padding: 9px 0 9px 44px;
+  border-bottom: 1px solid var(--line);
+  color: #c6c8ba;
+  font-size: 12.5px;
+  line-height: 1.6;
+  word-break: keep-all;
+  counter-increment: devlog;
+}
+
+.devlog li::before {
+  content: counter(devlog, decimal-leading-zero);
+  position: absolute;
+  top: 10px;
+  left: 0;
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
 }
 
 .dialog__media-block {
@@ -1996,7 +2035,7 @@ html.motion-off .motion-toggle__text {
 .gallery__image {
   width: 100%;
   aspect-ratio: 16 / 10;
-  object-fit: cover;
+  object-fit: contain;
   background: var(--bg-deep);
 }
 
@@ -2555,6 +2594,13 @@ html.motion-off .project-card__tilt:hover {
 
   .gallery figure:first-child {
     grid-column: auto;
+  }
+
+  .gallery__image,
+  .gallery figure:first-child .gallery__image {
+    height: auto;
+    max-height: 78vh;
+    aspect-ratio: auto;
   }
 
   .notes__head {

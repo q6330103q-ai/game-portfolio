@@ -91,10 +91,12 @@
     if (!raw || typeof raw !== 'object') return null;
     var src = safeMediaSrc(raw.src);
     if (!src) return null;
+    var pos = clean(raw.pos);
     return {
       src: src,
       alt: clean(raw.alt),
-      caption: clean(raw.caption)
+      caption: clean(raw.caption),
+      pos: /^\d{1,3}% \d{1,3}%$/.test(pos) ? pos : ''
     };
   }
 
@@ -116,6 +118,8 @@
     var features = Array.isArray(raw.features)
       ? raw.features.map(clean).filter(Boolean)
       : [];
+    var tools = Array.isArray(raw.tools) ? raw.tools.map(clean).filter(Boolean) : [];
+    var history = Array.isArray(raw.history) ? raw.history.map(clean).filter(Boolean) : [];
 
     return {
       id: clean(raw.id) || 'project-' + (index + 1),
@@ -126,6 +130,10 @@
       status: clean(raw.status),
       description: clean(raw.description),
       year: clean(raw.year),
+      period: clean(raw.period),
+      team: clean(raw.team),
+      tools: tools,
+      history: history,
       features: features,
       images: images,
       videos: videos,
@@ -525,7 +533,7 @@
   function addCardMedia(media, game) {
     var image = game.images[0];
     if (!image) {
-      media.appendChild(createMediaFallback(game, 'IMAGE / NOT REGISTERED'));
+      media.appendChild(createMediaFallback(game, 'CAPTURE / 미확보'));
       return;
     }
 
@@ -533,6 +541,7 @@
       lazy: true,
       className: 'project-card__img'
     });
+    if (image.pos) img.style.objectPosition = image.pos;
     img.addEventListener('error', function () {
       img.remove();
       media.prepend(createMediaFallback(game, 'IMAGE / UNAVAILABLE'));
@@ -562,6 +571,7 @@
     var meta = el('div', 'project-card__meta');
     if (game.engine) meta.appendChild(el('span', '', game.engine));
     if (game.category) meta.appendChild(el('span', '', game.category));
+    if (game.team) meta.appendChild(el('span', '', '팀 프로젝트'));
     if (meta.childNodes.length) body.appendChild(meta);
 
     body.appendChild(el('h3', 'project-card__title', game.title));
@@ -569,9 +579,10 @@
     var summary = game.subtitle || game.description;
     if (summary) body.appendChild(el('p', 'project-card__subtitle', summary));
 
-    if (game.year || game.status) {
+    if (game.period || game.year || game.status) {
       var foot = el('div', 'project-card__foot');
-      if (game.year) foot.appendChild(el('span', '', game.year));
+      var when = game.period ? game.period.split(' ')[0].slice(0, 7) : game.year;
+      if (when) foot.appendChild(el('span', '', when));
       if (game.status) foot.appendChild(el('span', 'project-card__status', game.status));
       body.appendChild(foot);
     }
@@ -593,7 +604,9 @@
   }
 
   function getFeaturedSpans(count) {
-    if (count >= 4) return [7, 5, 5, 7];
+    if (count >= 6) return [7, 5, 5, 7, 7, 5];
+    if (count === 5) return [7, 5, 5, 7, 12];
+    if (count === 4) return [7, 5, 5, 7];
     if (count === 3) return [7, 5, 12];
     if (count === 2) return [7, 5];
     if (count === 1) return [12];
@@ -787,8 +800,10 @@
       game.category,
       game.status,
       game.year,
+      game.period,
+      game.team,
       game.description
-    ].concat(game.features).join(' ').toLowerCase();
+    ].concat(game.features, game.tools, game.history).join(' ').toLowerCase();
 
     return haystack.indexOf(query) !== -1;
   }
@@ -1302,7 +1317,9 @@
       ['엔진', game.engine],
       ['카테고리', game.category],
       ['상태', game.status],
-      ['연도', game.year]
+      ['기간', game.period || game.year],
+      ['팀', game.team],
+      ['제작 도구', game.tools.join(' · ')]
     ];
 
     rows.forEach(function (row) {
@@ -1325,7 +1342,8 @@
     addDialogPill(top, game.category);
     addDialogPill(top, game.engine);
     addDialogPill(top, game.status);
-    addDialogPill(top, game.year);
+    addDialogPill(top, game.team);
+    addDialogPill(top, game.period || game.year);
     if (top.childNodes.length) dom.dialogContent.appendChild(top);
 
     dom.dialogContent.appendChild(el('h2', 'dialog__title', game.title));
@@ -1364,6 +1382,17 @@
         grid.appendChild(section);
       });
       dom.dialogContent.appendChild(grid);
+    }
+
+    if (game.history.length) {
+      var historyBlock = el('section', 'dialog__section dialog__history');
+      historyBlock.appendChild(el('h3', '', 'DEVLOG / 개발 이력'));
+      var timeline = el('ol', 'devlog');
+      game.history.forEach(function (entry) {
+        timeline.appendChild(el('li', '', entry));
+      });
+      historyBlock.appendChild(timeline);
+      dom.dialogContent.appendChild(historyBlock);
     }
 
     if (game.images.length) {
@@ -1450,9 +1479,9 @@
   function chooseFeatured() {
     var list = state.games.filter(function (game) {
       return game.featured;
-    }).slice(0, 4);
+    }).slice(0, 6);
 
-    if (!list.length) list = state.games.slice(0, 4);
+    if (!list.length) list = state.games.slice(0, 6);
     return list;
   }
 
