@@ -194,19 +194,6 @@ window.PORTFOLIO = {
       videos:[{src:'media/wall-breaker-play.mp4',poster:'media/wall-breaker-arc.webp',title:'벽 · 참 · 직접 실행 녹화',caption:'V17 Windows 빌드 직접 실행 · 자동 전투·벽 격파·필살기 · 14초 · 무음'}]
     },
     {
-      id:'memory-wanderer',title:'빈손의 여행자',subtitle:'THE MEMORY WANDERER · PC 메모리를 힘으로 바꾸는 작업표시줄 방치 RPG.',
-      engine:'Unity 6 · C# · UI Toolkit',category:'RPG',status:'Windows 빌드 V5 · 프로토타입',year:'2026',period:'2026.10.09 – 10.10',
-      tools:['Unity 6','AI 생성 배경·캐릭터 아트'],
-      description:'작업표시줄 위 가로 띠 화면에서 맨손의 여행자가 자동으로 몬스터를 사냥하며 레벨·골드·장비를 모으는 방치형 RPG 프로토타입입니다. 실제 PC의 물리 RAM 사용률을 1초마다 읽어 공격력을 1~4배로 키우고, 불꽃 오라와 공격 속도에도 반영합니다. 같은 Unity 프로젝트에서 이후 벽 · 참이 새 게임으로 시작되었습니다.',
-      features:['RAM 사용률 연동 공격력 배율','적 51종 · 장비 59종(무기 21·갑옷 19·투구 19)','머리·몸통·관절을 따로 움직이는 2D 관절 애니메이션','가방·도감·설정 UI와 작업표시줄 도킹 창 · 자동 저장'],
-      images:[
-        {src:'media/memory-wanderer-hud.webp',alt:'작업표시줄 위 사냥 화면과 HUD',caption:'프로젝트 내 기존 캡처 · V5 Windows 실행 화면 · 사냥 HUD',pos:'40% 50%'},
-        {src:'media/memory-wanderer-inventory.webp',alt:'여행자의 장비함',caption:'프로젝트 내 기존 캡처 · V5 · 장비함',pos:'70% 50%'},
-        {src:'media/memory-wanderer-bestiary.webp',alt:'몬스터 도감',caption:'프로젝트 내 기존 캡처 · V5 · 몬스터 도감',pos:'60% 50%'}
-      ],
-      videos:[{src:'media/memory-wanderer-combat.mp4',poster:'media/memory-wanderer-hud.webp',title:'빈손의 여행자 · 전투',caption:'V2 시기 Unity 에디터 플레이 녹화(GIF 변환) · 무음'}]
-    },
-    {
       id:'snow-leopard-companion',title:'설표 컴패니언',subtitle:'SNOW LEOPARD COMPANION · 작업표시줄 위를 걷는 3D 데스크톱 친구.',
       engine:'Unity 6 · URP · Win32',category:'실험',status:'Windows 빌드 · 직접 실행 확인',year:'2026',period:'2026.10.09 – 10.10',
       tools:['Unity 6 URP','VARCO 3D 생성 모델','Blender 직접 리깅·애니메이션'],
@@ -323,21 +310,9 @@ window.PORTFOLIO = {
       description:'5분 생존과 보스전을 목표로 한 자동사격 생존 프로젝트. NightfallSurvivor와 Unity2D 폴더를 동일 계열로 묶었습니다. 빌드와 실행 화면은 확인되지 않았습니다.',
       features:['자동사격','5분 생존 구조','보스전','8종 강화'],images:[],videos:[]
     },
-    {
-      id:'color-run',title:'COLOR RUN',subtitle:'달리고, 색을 바꾸고.',
-      engine:'Unity · C#',category:'캐주얼',status:'초기 제작 프로젝트 · 실행 화면 미확보',year:'2026',
-      description:'색 전환을 중심으로 한 러너 프로젝트. ColorRun과 RunGame 계열 자료를 하나로 모았습니다. 플레이 영상과 캡처는 찾지 못했습니다.',
-      features:['색 전환 러너','스킨 상점'],images:[],videos:[]
-    },
-    {
-      id:'fps-lab',title:'VARCO FPS LAB',subtitle:'이동과 무기의 감각을 실험하다.',
-      engine:'Unity 6 · URP',category:'실험',status:'FPS 샌드박스 · 실행 화면 미확보',year:'2026',
-      description:'varcotest 프로젝트의 1인칭 이동·무기 샌드박스. BhopTest 씬과 스나이퍼·칼·무기 교체 코드를 확인했습니다. 완성 게임이 아닌 조작 실습입니다.',
-      features:['1인칭 이동 실습','스나이퍼 라이플·칼','무기 전환·뷰모델'],images:[],videos:[]
-    }
   ],
   notes: [
-    {title:'무엇을 담았나', text:'직접 만든 게임과 프로토타입 27개를 한 항목씩 정리했습니다. 같은 게임의 백업·빌드 사본·이전 버전은 하나로 묶고, 각 항목의 개발 이력에 기록했습니다.'},
+    {title:'무엇을 담았나', text:'직접 만든 게임과 프로토타입 24개를 한 항목씩 정리했습니다. 같은 게임의 백업·빌드 사본·이전 버전은 하나로 묶고, 각 항목의 개발 이력에 기록했습니다.'},
     {title:'화면의 출처', text:'모든 이미지와 영상 설명에 출처를 적었습니다. 직접 실행 캡처, 플레이 녹화, 프로젝트 안의 기존 캡처, 에디터·자동 검증 화면, 시네마틱·렌더를 구분하며, 다른 게임의 화면을 대신 쓰지 않습니다.'},
     {title:'상태 표기', text:'상태 칸은 확인한 수준만 적습니다. 빌드를 직접 실행했는지, 녹화만 있는지, 소스만 있는지 구분하며 출시·실기기 검증을 하지 않은 작업은 그렇게 표기합니다.'},
     {title:'AI 도구 활용', text:'여러 프로젝트에서 VARCO 3D 생성 모델, 이미지 생성 아트, AI 코딩 에이전트를 활용했습니다. 해당 프로젝트의 제작 도구 항목과 캡션에 밝혔습니다.'},
