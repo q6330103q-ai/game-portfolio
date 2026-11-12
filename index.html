@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>김준식 — 게임 포트폴리오</title>
   <meta name="description" content="김준식의 게임 포트폴리오. 최종 프로젝트 세 편과 Unity·Unreal로 만든 게임·프로토타입 24편을 실제 플레이 녹화와 캡처, 제작 기록으로 소개합니다.">
-  <meta name="theme-color" content="#0a0b0c">
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#e8e7e3">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ko_KR">
   <meta property="og:site_name" content="게임 포트폴리오">
@@ -21,8 +20,7 @@
   <meta name="twitter:title" content="김준식 — 게임 포트폴리오">
   <meta name="twitter:description" content="최종 프로젝트 세 편과 Unity·Unreal로 만든 게임·프로토타입 24편. 직접 실행 기록과 확보한 녹화·캡처, 제작 노트로 정리한 김준식의 게임 포트폴리오.">
   <meta name="twitter:image" content="https://q6330103q-ai.github.io/game-portfolio/media/hanbit-clash.webp">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%3E%3Crect%20width='40'%20height='40'%20fill='%230a0b0c'/%3E%3Crect%20x='14'%20y='6'%20width='12'%20height='28'%20fill='%23ff6a3d'/%3E%3Crect%20x='4'%20y='11'%20width='7'%20height='18'%20fill='%23f4f1ea'/%3E%3Crect%20x='29'%20y='11'%20width='7'%20height='18'%20fill='%23f4f1ea'/%3E%3C/svg%3E">
-  <link rel="preload" href="media/necro-guardian.webp" as="image" fetchpriority="high">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20fill='%231240ee'/%3E%3Ctext%20x='32'%20y='45'%20text-anchor='middle'%20font-family='sans-serif'%20font-size='34'%20font-weight='800'%20fill='%23ffffff'%3E%EA%B2%8C%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="fonts/pretendard-variable.css">
   <link rel="stylesheet" href="styles.css">
   <script>
@@ -44,179 +42,126 @@
 </head>
 <body>
   <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <div class="progress" aria-hidden="true"><span class="progress__bar" id="progressBar"></span></div>
 
-  <header class="site-bar">
-    <a class="site-bar__brand" href="#home" aria-label="김준식 게임 포트폴리오 처음으로">김준식</a>
-    <nav class="site-nav" aria-label="주요 화면">
-      <a class="site-nav__link" href="#home">처음</a>
-      <a class="site-nav__link" href="#catalog">작품 목록</a>
-      <a class="site-nav__link" href="#notes">제작 노트</a>
-    </nav>
-    <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="true">
-      <span class="motion-toggle__dot" aria-hidden="true"></span>
-      <span class="motion-toggle__label">모션 끄기</span>
-    </button>
-  </header>
-
-  <main id="main" tabindex="-1">
-    <p class="data-error" id="dataError" role="alert" hidden>작품 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</p>
-
-    <div class="view view--home" id="homeView">
-      <section class="motion-showcase" id="motionShowcase" aria-labelledby="showcaseHeading">
-        <div class="motion-showcase__sticky">
-          <div class="showcase-intro">
-            <h1 class="showcase-heading" id="showcaseHeading">
-              <span class="showcase-heading__line"><span class="showcase-heading__text">게임</span></span>
-              <span class="showcase-heading__line"><span class="showcase-heading__text">포트폴리오</span></span>
-            </h1>
-            <p class="showcase-byline">김준식</p>
-            <p class="showcase-lede">Unity와 Unreal로 만든 게임과 프로토타입 24편을 플레이 녹화·캡처와 제작 기록으로 소개합니다. 지금 재생되는 세 편이 최종 프로젝트입니다.</p>
-          </div>
-
-          <div class="showcase-stage" id="showcaseStage">
-            <div class="showcase-scene is-active" data-game="necro-climb" data-index="0" data-orient="portrait" style="--ar: 0.4615">
-              <div class="showcase-ambient" aria-hidden="true"><img src="media/necro-guardian.webp" alt="" decoding="async"></div>
-              <div class="showcase-visual">
-                <figure class="showcase-companion showcase-companion--left" data-orient="portrait">
-                  <img class="showcase-companion__img" src="media/necro-title.webp" alt="NECRO CLIMB 타이틀" width="720" height="1280" decoding="async">
-                  <figcaption class="showcase-companion__caption">프로젝트 내 UI 검증 캡처 · 타이틀 "초보 강령술사"</figcaption>
-                </figure>
-                <div class="showcase-screen">
-                  <img class="showcase-still" src="media/necro-guardian.webp" alt="" width="540" height="1170" fetchpriority="high">
-                </div>
-                <figure class="showcase-companion showcase-companion--right" data-orient="portrait">
-                  <img class="showcase-companion__img" src="media/necro-battle.webp" alt="영웅 돌진 범위 경고가 뜬 첫 전투" width="540" height="1170" decoding="async">
-                  <figcaption class="showcase-companion__caption">직접 실행 캡처 · 1장 첫 전투, 영웅 돌진 경고</figcaption>
-                </figure>
-              </div>
-              <div class="showcase-copy">
-                <h2 class="showcase-title"><span class="showcase-word" style="--w: 0"><span class="showcase-word__inner">NECRO</span></span> <span class="showcase-word" style="--w: 1"><span class="showcase-word__inner">CLIMB</span></span></h2>
-                <p class="showcase-subtitle">망자의 군단을 세워 인간의 성채를 오르는 세로형 강령술사 기지전.</p>
-                <p class="showcase-meta"><span class="showcase-meta__category">디펜스</span> <span class="showcase-meta__period">2026.11.02 – 11.10</span></p>
-                <p class="showcase-caption">v1.9 Windows 빌드 직접 플레이 · 기지 체력 30% 이하 수호자 강림 → 반격 · 14초 · 무음</p>
-                <div class="showcase-actions">
-                  <a class="showcase-link" href="#p=necro-climb" data-game="necro-climb">작품 자세히</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="showcase-controls" id="showcaseControls"></div>
-        </div>
-      </section>
-
-      <section class="chapters" aria-labelledby="finalTitle">
-        <header class="section-head section-head--split">
-          <h2 class="section-head__title" id="finalTitle">최종 프로젝트</h2>
-          <p class="section-head__text">가장 최근에 만든 세 편입니다. 장면마다 무엇을 만들었는지, 어디까지 확인했는지 함께 적었습니다.</p>
-        </header>
-        <div class="chapters__list" id="finalGrid"></div>
-      </section>
-
-      <section class="motion-reel" id="motionReel" aria-labelledby="reelTitle">
-        <header class="section-head section-head--reel">
-          <h2 class="section-head__title" id="reelTitle">장면으로 만나는 게임</h2>
-          <p class="section-head__text">최종 프로젝트 이전에 만든 대표작 다섯 편의 영상입니다. 옆으로 넘기고, 미리보기로 그 자리에서 재생해 보세요.</p>
-          <div class="reel-steps">
-            <button class="reel-step" type="button" data-rail-target="motionReelTrack" data-rail-dir="-1" aria-label="이전 장면들"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button>
-            <button class="reel-step" type="button" data-rail-target="motionReelTrack" data-rail-dir="1" aria-label="다음 장면들"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg></button>
-          </div>
-        </header>
-        <div class="motion-reel__track" id="motionReelTrack" tabindex="0" role="region" aria-label="대표작 영상 장면"></div>
-      </section>
-
-      <section class="archive" id="archive" aria-labelledby="allTitle">
-        <header class="section-head section-head--split">
-          <h2 class="section-head__title" id="allTitle">모든 작품</h2>
-          <div class="section-head__aside">
-            <p class="section-head__text">완성작부터 소스만 남은 원형까지 24편. 어디까지 확인했는지를 작품마다 적었습니다.</p>
-            <a class="archive__find" href="#catalog">검색·장르로 찾기</a>
-          </div>
-        </header>
-        <div class="archive-grid" id="allGrid"></div>
-      </section>
-
-      <section class="notes" id="notes" aria-labelledby="notesTitle" tabindex="-1">
-        <header class="section-head section-head--split">
-          <h2 class="section-head__title" id="notesTitle">제작 노트</h2>
-          <p class="section-head__text">무엇을 담았고, 화면의 출처와 상태를 어떻게 적었는지 밝혀 둡니다.</p>
-        </header>
-        <div class="notes__list" id="notesList"></div>
-      </section>
-    </div>
-
-    <section class="view view--catalog" id="catalogView" aria-labelledby="catalogTitle" hidden>
-      <header class="index-head">
-        <h1 class="index-head__title" id="catalogTitle" tabindex="-1">전체 작품</h1>
-        <p class="index-head__count" id="resultCount" role="status" aria-live="polite"></p>
-      </header>
-      <div class="index-tools">
-        <form class="index-search" id="searchForm" role="search" action="#catalog">
-          <label class="index-search__label" for="searchInput">작품 검색</label>
-          <div class="index-search__field">
-            <input class="index-search__input" id="searchInput" name="q" type="search" placeholder="제목, 장르, 엔진" autocomplete="off" spellcheck="false" enterkeyhint="search">
-            <button class="index-search__clear" id="searchClear" type="button" aria-label="검색어 지우기" hidden>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2"/></svg>
-            </button>
-          </div>
-        </form>
-        <div class="index-filters" id="categoryFilters" role="group" aria-label="장르로 거르기"></div>
-      </div>
-      <div class="index-grid" id="resultsGrid"></div>
-      <div class="index-empty" id="emptyState" hidden>
-        <p class="index-empty__text">조건에 맞는 작품이 없습니다. 검색어를 바꾸거나 장르 선택을 풀어 보세요.</p>
-        <button class="index-empty__reset" id="resetSearch" type="button">검색 초기화</button>
-      </div>
-    </section>
-
-    <article class="view view--detail" id="detailView" tabindex="-1" aria-label="작품 상세" hidden>
-      <button class="case-back" id="detailBack" type="button">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>
-        목록으로
-      </button>
-      <div class="case" id="detailContent"></div>
-    </article>
-  </main>
-
-  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-
-  <footer class="site-end">
-    <div class="site-end__top">
-      <p class="site-end__title">게임 포트폴리오 · 김준식</p>
-      <nav class="site-end__nav" aria-label="바닥글 이동">
-        <a href="#home">처음</a>
-        <a href="#catalog">작품 목록</a>
+  <div class="split" id="top">
+    <header class="bar">
+      <a class="bar__mark" href="#top"><span class="bar__title">게임 포트폴리오</span> <span class="bar__name">김준식</span></a>
+      <nav class="bar__nav" aria-label="주요 섹션">
+        <a href="#final">최종 프로젝트</a>
+        <a href="#featured">대표작</a>
+        <a href="#archive">전체 작업</a>
         <a href="#notes">제작 노트</a>
       </nav>
+    </header>
+
+    <aside class="stage" id="stage" aria-label="무대: 지금 읽는 작품의 화면">
+      <div class="stage__screen" id="stageScreen">
+        <div class="stage__layer is-on"></div>
+        <div class="stage__layer"></div>
+        <span class="stage__timer" id="stageTimer" aria-hidden="true"></span>
+      </div>
+      <div class="stage__strip" id="stageStrip"></div>
+      <div class="stage__meta">
+        <div class="stage__mask"><p class="stage__title" id="stageTitle">게임 포트폴리오</p></div>
+        <p class="stage__caption" id="stageCaption">작품 데이터를 불러오는 중입니다.</p>
+        <div class="stage__foot">
+          <p class="stage__where" id="stageWhere"></p>
+          <div class="stage__ctrl">
+            <button class="stage__btn" id="stageToggle" type="button" aria-pressed="false">멈춤</button>
+            <button class="stage__btn" id="motionToggle" type="button">모션 끄기</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="column" id="main">
+      <section class="hero" aria-labelledby="heroTitle">
+        <h1 class="hero__title" id="heroTitle">
+          <span class="line"><span data-line style="--i:0">김준식의</span></span>
+          <span class="line"><span data-line style="--i:1">게임 포트폴리오</span></span>
+        </h1>
+        <p class="hero__lede" id="heroLede" data-load style="--d:380ms">Unity와 Unreal로 만든 완성작과 프로토타입, 작은 실험까지 <span id="heroCount">24</span>편을 직접 실행 기록과 확보한 녹화·캡처, 제작 노트로 정리했습니다. 무대에는 지금 읽는 작품의 화면이 걸립니다.</p>
+        <div class="hero__act" data-load style="--d:470ms">
+          <a class="btn btn--accent" href="#final">최종 프로젝트 보기</a>
+          <a class="btn btn--quiet" href="#archive">전체 작업 목록</a>
+        </div>
+        <p class="hero__facts" id="heroFacts" data-load style="--d:560ms">
+          <span><strong data-fact="games">24</strong> 작업</span>
+          <span><strong data-fact="cats">8</strong> 분류</span>
+          <span><strong data-fact="videos">20</strong> 영상</span>
+          <span><strong data-fact="images">99</strong> 캡처</span>
+        </p>
+        <p class="hero__error" id="dataError" role="alert" hidden>작품 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.</p>
+      </section>
+
+      <section class="final" id="final" aria-labelledby="finalTitle">
+        <header class="sec-head" data-reveal>
+          <h2 id="finalTitle">최종 프로젝트 <span id="finalCount">세</span> 편</h2>
+          <p>포트폴리오의 결론으로 고른 작품입니다. 가장 최근에 만들었고, 빌드를 직접 실행해 확인한 범위를 그대로 적었습니다.</p>
+        </header>
+        <div class="final__list" id="finalList"></div>
+      </section>
+
+      <section class="featured" id="featured" aria-labelledby="featuredTitle">
+        <header class="sec-head" data-reveal>
+          <h2 id="featuredTitle">대표작 <span id="featuredCount">다섯</span> 편</h2>
+          <p>최종 프로젝트에 앞서 만든 작품 가운데 먼저 보여 드리고 싶은 것들입니다. 읽어 내려가면 무대가 그 작품의 화면으로 바뀝니다.</p>
+        </header>
+        <div class="featured__list" id="featuredList"></div>
+      </section>
+
+      <section class="archive" id="archive" aria-labelledby="archiveTitle">
+        <header class="sec-head" data-reveal>
+          <h2 id="archiveTitle">전체 작업 <span id="archiveTotal">24</span>편</h2>
+          <p>완성작부터 소스만 남은 원형까지, 확인한 수준을 상태로 적었습니다. 화면이 없는 작품은 무대에 정보 카드로 소개합니다.</p>
+        </header>
+        <p class="archive__status" id="archiveStatus" role="status" aria-live="polite"></p>
+        <div class="filters" id="filters" role="group" aria-label="분류로 거르기"></div>
+        <div class="archive__list" id="archiveList"></div>
+        <div class="archive__empty" id="archiveEmpty" hidden>
+          <p>이 분류에는 작업이 없습니다.</p>
+          <button class="btn btn--quiet" type="button" id="emptyReset">전체 보기</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <section class="notes" id="notes" aria-labelledby="notesTitle">
+    <div class="notes__inner">
+      <header class="notes__head" data-reveal>
+        <h2 id="notesTitle">제작 노트</h2>
+        <p>무엇을 담았고, 화면의 출처와 상태를 어떻게 적었는지 밝힙니다.</p>
+      </header>
+      <div class="notes__grid" id="notesList"></div>
     </div>
-    <div class="site-end__fine">
-      <p>이미지와 영상의 출처와 상태는 각 작품의 설명과 캡션에 적었습니다.</p>
+  </section>
+
+  <footer class="foot" aria-labelledby="footName">
+    <div class="foot__main">
+      <p class="foot__name" id="footName">김준식</p>
+      <nav class="foot__nav" aria-label="바닥글 이동">
+        <a href="#final">최종 프로젝트</a>
+        <a href="#featured">대표작</a>
+        <a href="#archive">전체 작업</a>
+        <a href="#notes">제작 노트</a>
+        <a href="#top">맨 위로</a>
+      </nav>
+    </div>
+    <div class="foot__row">
+      <p>김준식 게임 포트폴리오 · 2026 · 이미지와 영상의 출처는 각 작품의 설명에 적었습니다.</p>
       <p>서체 Pretendard · <a href="fonts/LICENSE.txt">SIL Open Font License 1.1</a></p>
     </div>
-    <p class="site-end__name" aria-hidden="true">김준식</p>
   </footer>
 
-  <dialog class="viewer" id="mediaViewer" aria-label="게임 미디어 크게 보기">
-    <div class="viewer__frame">
-      <div class="viewer__bar">
-        <p class="viewer__count" id="viewerCount"></p>
-        <button class="viewer__btn viewer__close" id="viewerClose" type="button" aria-label="크게 보기 닫기">
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2"/></svg>
-        </button>
-      </div>
-      <div class="viewer__stage">
-        <button class="viewer__btn viewer__nav viewer__nav--prev" id="viewerPrev" type="button" aria-label="이전 미디어">
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>
-        </button>
-        <div class="viewer__content" id="viewerContent"></div>
-        <button class="viewer__btn viewer__nav viewer__nav--next" id="viewerNext" type="button" aria-label="다음 미디어">
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square"/></svg>
-        </button>
-      </div>
-      <p class="viewer__caption" id="viewerCaption"></p>
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet__bar">
+      <p class="sheet__crumb" id="sheetCrumb"></p>
+      <button class="btn btn--quiet sheet__close" id="sheetClose" type="button">닫기</button>
     </div>
+    <article class="sheet__body" id="sheetBody"></article>
   </dialog>
 
-  <noscript><p class="noscript">이 포트폴리오는 작품 목록과 상세 화면을 그리기 위해 JavaScript가 필요합니다. 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+  <noscript><p class="noscript">이 포트폴리오는 작품 목록을 그리기 위해 JavaScript가 필요합니다.</p></noscript>
 </body>
 </html>
