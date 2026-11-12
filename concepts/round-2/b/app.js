@@ -368,7 +368,7 @@
     const g = byId.get(id);
     if (!g) return;
     state.opener = opener || document.activeElement;
-    els.detailCrumb.textContent = `${g.final ? '최종 프로젝트' : '전체 24편'} / ${g.title}`;
+    els.detailCrumb.textContent = `${g.final ? '최종 프로젝트' : '전체 23편'} / ${g.title}`;
     const vids = g.videos.map((v) => `<figure class="d-video">
         <video controls preload="none" playsinline poster="${esc(src(v.poster))}" src="${esc(src(v.src))}"></video>
         <figcaption><strong>${esc(v.title)}</strong><span>${esc(v.caption)}</span></figcaption>

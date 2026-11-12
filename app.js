@@ -1,31 +1,36 @@
 (() => {
   'use strict';
 
-  const data = window.PORTFOLIO;
   const html = document.documentElement;
   const $ = (sel) => document.querySelector(sel);
-  const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const splitMQ = window.matchMedia('(min-width: 1000px)');
-  const hoverMQ = window.matchMedia('(hover: hover) and (pointer: fine)');
   const MOTION_KEY = 'gp-motion';
-  const EASE = {
-    out: 'cubic-bezier(0.22, 1, 0.36, 1)',
-    expo: 'cubic-bezier(0.16, 1, 0.3, 1)',
-    io: 'cubic-bezier(0.76, 0, 0.24, 1)',
-    exit: 'cubic-bezier(0.55, 0.055, 0.675, 0.19)',
-  };
-  const motionOn = () => html.dataset.motion !== 'off';
-  const KOREAN_COUNT = ['영', '한', '두', '세', '네', '다섯', '여섯', '일곱', '여덟', '아홉', '열'];
-  const countWord = (n) => (n <= 10 ? KOREAN_COUNT[n] : String(n));
+  const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const SECTIONS = ['intro', 'work', 'development', 'media', 'notes'];
+  const DEFAULT_ID = 'necro-climb';
+  const CAT_ALL = 'all';
+  const CAT_FINAL = 'final';
+  const SITE_TITLE = '김준식 — 게임 포트폴리오';
+
+  const header = $('#siteHeader');
+  const main = $('#main');
+  const projectRoot = $('#projectRoot');
+  const catSelect = $('#categorySelect');
+  const gameSelect = $('#gameSelect');
+  const sectionNav = $('#sectionNav');
+  const motionBtn = $('#motionToggle');
+  const routeStatus = $('#routeStatus');
+  const dataError = $('#dataError');
+  const notesSection = $('#notes');
+  const notesList = $('#notesList');
 
   const el = (tag, props = {}, children = []) => {
     const node = document.createElement(tag);
+    // Insertion order matters: `loading` and `preload` are set before `src`, so nothing downloads early.
     for (const [key, value] of Object.entries(props)) {
       if (value == null || value === false) continue;
       if (key === 'class') node.className = value;
       else if (key === 'text') node.textContent = value;
-      else if (key in node && typeof value !== 'string') node[key] = value;
-      else node.setAttribute(key, value);
+      else node.setAttribute(key, value === true ? '' : String(value));
     }
     for (const child of [].concat(children)) {
       if (child == null || child === false) continue;
@@ -33,94 +38,28 @@
     }
     return node;
   };
+  const list = (v) => (Array.isArray(v) ? v : []);
+  const texts = (v) => list(v).filter((s) => typeof s === 'string' && s);
 
-  /* ---------- scroll: one frame callback for the progress band and the stage pick ---------- */
-  const progressBar = $('#progressBar');
-  let frame = 0;
-  let onFrame = null;
-  let lastScrollAt = 0;
-  const updateProgress = () => {
-    const max = html.scrollHeight - window.innerHeight;
-    progressBar.style.setProperty('--p', max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)).toFixed(4) : '0');
-  };
-  const queueFrame = () => {
-    if (frame) return;
-    frame = window.requestAnimationFrame(() => {
-      frame = 0;
-      updateProgress();
-      if (onFrame) onFrame();
-    });
-  };
-  window.addEventListener('scroll', () => { lastScrollAt = performance.now(); queueFrame(); }, { passive: true });
-  window.addEventListener('resize', queueFrame);
-  updateProgress();
-
-  /* ---------- reveal: once, staggered within each batch that enters together ---------- */
-  const revealObserver = 'IntersectionObserver' in window
-    ? new IntersectionObserver((entries) => {
-        let k = 0;
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const t = entry.target;
-          if (!t.hasAttribute('data-delay-fixed')) t.style.setProperty('--delay', `${Math.min(k, 6) * 80}ms`);
-          k += 1;
-          t.classList.add('is-in');
-          revealObserver.unobserve(t);
-          if (t._onReveal) t._onReveal();
-        }
-      }, { rootMargin: '0px 0px -8% 0px' })
-    : null;
-  const reveal = (node, delay) => {
-    node.setAttribute('data-reveal', '');
-    if (delay != null) {
-      node.style.setProperty('--delay', `${delay}ms`);
-      node.setAttribute('data-delay-fixed', '');
-    }
-    if (revealObserver) revealObserver.observe(node);
-    else { node.classList.add('is-in'); if (node._onReveal) node._onReveal(); }
-  };
-
-  /* ---------- counters ---------- */
-  const countUp = (node, to, { delay = 0, duration = 1200 } = {}) => {
-    node.textContent = String(to);
-    if (!motionOn() || !to) return;
-    node.textContent = '0';
-    const start = performance.now() + delay;
-    const step = (now) => {
-      // Motion switched off mid-count: land on the real number at once.
-      if (!motionOn()) { node.textContent = String(to); return; }
-      const t = Math.min(1, Math.max(0, (now - start) / duration));
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      node.textContent = String(Math.round(to * eased));
-      if (t < 1) window.requestAnimationFrame(step);
-    };
-    window.requestAnimationFrame(step);
-  };
-
-  /* ---------- motion toggle (persisted; follows the OS setting until the visitor chooses) ---------- */
-  const motionBtn = $('#motionToggle');
+  /* ---------- motion preference (gp-motion, else the OS setting; the head script applied it first) ---------- */
+  const motionOn = () => html.dataset.motion !== 'off';
   const motionListeners = [];
   const syncMotionButton = () => {
+    if (!motionBtn) return;
     const on = motionOn();
     motionBtn.textContent = on ? '모션 끄기' : '모션 켜기';
-    motionBtn.setAttribute('aria-label', on ? '페이지 모션 끄기' : '페이지 모션 켜기');
+    motionBtn.setAttribute('aria-label', on ? '화면 모션과 대표 영상 자동 재생 끄기' : '화면 모션과 대표 영상 자동 재생 켜기');
+    motionBtn.removeAttribute('aria-pressed');
   };
   const setMotion = (on, persist) => {
     html.dataset.motion = on ? 'on' : 'off';
     if (persist) {
-      try { localStorage.setItem(MOTION_KEY, on ? 'on' : 'off'); } catch (e) { /* storage unavailable: setting lasts this visit */ }
-    }
-    if (!on) {
-      for (const a of document.getAnimations()) {
-        if (typeof CSSAnimation !== 'undefined' && a instanceof CSSAnimation) continue;
-        if (typeof CSSTransition !== 'undefined' && a instanceof CSSTransition) continue;
-        a.cancel();
-      }
+      try { localStorage.setItem(MOTION_KEY, on ? 'on' : 'off'); } catch (e) { /* storage unavailable: the choice lasts this visit */ }
     }
     syncMotionButton();
     for (const fn of motionListeners) fn(on);
   };
-  motionBtn.addEventListener('click', () => setMotion(!motionOn(), true));
+  if (motionBtn) motionBtn.addEventListener('click', () => setMotion(!motionOn(), true));
   reduceMQ.addEventListener('change', () => {
     let saved = null;
     try { saved = localStorage.getItem(MOTION_KEY); } catch (e) { saved = null; }
@@ -128,854 +67,766 @@
   });
   syncMotionButton();
 
-  document.querySelectorAll('[data-reveal]').forEach((node) => {
-    if (revealObserver) revealObserver.observe(node); else node.classList.add('is-in');
-  });
+  /* ---------- reveal: .is-in once in view; immediately when motion is off ---------- */
+  const makeRevealer = () => {
+    const pending = new Set();
+    const io = 'IntersectionObserver' in window
+      ? new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add('is-in');
+            pending.delete(entry.target);
+            io.unobserve(entry.target);
+          }
+        }, { rootMargin: '0px 0px -6% 0px' })
+      : null;
+    return {
+      observe(node) {
+        if (!io || !motionOn()) { node.classList.add('is-in'); return; }
+        pending.add(node);
+        io.observe(node);
+      },
+      flush() {
+        for (const node of pending) node.classList.add('is-in');
+        pending.clear();
+        if (io) io.disconnect();
+      },
+      disconnect() {
+        pending.clear();
+        if (io) io.disconnect();
+      },
+    };
+  };
+  const staticReveal = makeRevealer();
+  motionListeners.push((on) => { if (!on) staticReveal.flush(); });
 
-  if (!data || !Array.isArray(data.games) || data.games.length === 0) {
-    $('#dataError').hidden = false;
-    $('#stageCaption').textContent = '작품 데이터를 불러오지 못했습니다.';
-    $('#stageToggle').hidden = true;
+  /* ---------- data ---------- */
+  const data = window.PORTFOLIO;
+  const games = data && Array.isArray(data.games)
+    ? data.games.filter((g) => g && typeof g.id === 'string' && g.id && typeof g.title === 'string' && g.title)
+    : [];
+  if (!games.length) {
+    if (dataError) dataError.hidden = false;
+    if (projectRoot) projectRoot.replaceChildren();
+    for (const s of [catSelect, gameSelect]) if (s) s.disabled = true;
+    document.querySelectorAll('[data-reveal]').forEach((n) => n.classList.add('is-in'));
     return;
   }
 
-  const games = data.games;
+  const isFinal = (g) => g.final === true;
+  const finals = games.filter(isFinal);
+  const ordered = [...finals, ...games.filter((g) => !isFinal(g))];
   const byId = new Map(games.map((g) => [g.id, g]));
-  const finals = games.filter((g) => g.final === true);
-  const featured = games.filter((g) => g.featured && g.final !== true);
-  const categories = [...new Set(games.map((g) => g.category))];
-  const when = (g) => g.period || g.year || '';
-  const imagesOf = (g) => g.images || [];
-  const videosOf = (g) => g.videos || [];
-  const detailsOf = (g) => (Array.isArray(g.details) ? g.details.filter((d) => d && d.title && d.text) : []);
-  const firstSentence = (text = '') => {
-    const t = String(text).trim();
-    const m = /^.+?[.!?](?=\s|$)/.exec(t);
-    return m ? m[0] : t;
-  };
+  const defaultId = byId.has(DEFAULT_ID) ? DEFAULT_ID : ordered[0].id;
+  const genres = [...new Set(games.map((g) => g.category).filter(Boolean))];
+  const imagesOf = (g) => list(g.images).filter((m) => m && typeof m.src === 'string' && m.src);
+  const videosOf = (g) => list(g.videos).filter((m) => m && typeof m.src === 'string' && m.src);
+  const detailsOf = (g) => list(g.details).filter((d) => d && d.title && d.text);
+  const notes = list(data.notes).filter((n) => n && n.title && n.text);
+  const hasSection = (g, s) => (s === 'development' ? texts(g.history).length > 0 : s === 'notes' ? notes.length > 0 : SECTIONS.includes(s));
 
-  /* ---------- hero copy and numbers, from the data ---------- */
-  const count = (key) => games.reduce((n, g) => n + (g[key] ? g[key].length : 0), 0);
-  $('#heroCount').textContent = games.length;
-  if (finals.length) {
-    $('#heroLede').textContent = `최종 프로젝트 ${countWord(finals.length)} 편을 앞에 두고, Unity와 Unreal로 만든 완성작과 프로토타입, 작은 실험까지 ${games.length}편을 직접 실행 기록과 확보한 녹화·캡처, 제작 노트로 정리했습니다. 무대에는 지금 읽는 작품의 화면이 걸립니다.`;
-  }
-  const facts = [
-    ['games', games.length],
-    ['cats', categories.length],
-    ['videos', count('videos')],
-    ['images', count('images')],
-  ];
-  facts.forEach(([key, n], i) => countUp($(`[data-fact="${key}"]`), n, { delay: 620 + i * 90, duration: 1300 }));
-  const archiveTotal = $('#archiveTotal');
-  archiveTotal.textContent = games.length;
-  const archiveHead = archiveTotal.closest('[data-reveal]');
-  if (archiveHead) archiveHead._onReveal = () => countUp(archiveTotal, games.length, { delay: 150, duration: 1000 });
+  const inCat = (g, cat) => cat === CAT_ALL || (cat === CAT_FINAL ? isFinal(g) : g.category === cat);
+  const validCat = (cat) => cat === CAT_ALL || (cat === CAT_FINAL && finals.length > 0) || genres.includes(cat);
+  const gamesIn = (cat) => ordered.filter((g) => inCat(g, cat));
+  const catLabel = (cat) => (cat === CAT_ALL ? '전체' : cat === CAT_FINAL ? '최종 프로젝트' : cat);
 
-  $('#finalCount').textContent = countWord(finals.length);
-  $('#featuredCount').textContent = countWord(featured.length);
-  if (!finals.length) {
-    $('#final').hidden = true;
-    document.querySelectorAll('a[href="#final"]').forEach((a) => {
-      if (a.classList.contains('btn')) { a.href = '#featured'; a.textContent = '대표작부터 보기'; } else a.hidden = true;
-    });
-  }
-  if (!featured.length) {
-    $('#featured').hidden = true;
-    document.querySelectorAll('a[href="#featured"]').forEach((a) => { a.hidden = true; });
-  }
-
-  const factsList = (g, { withTools = false, withStatus = true } = {}) => {
-    const rows = [
-      withStatus ? ['상태', g.status, true] : null,
-      ['기간', when(g)],
-      ['분류', g.category],
-      ['엔진', g.engine],
-      ['팀', g.team],
-      ['역할', g.role],
-      withTools && g.tools && g.tools.length ? ['도구', g.tools.join(' · ')] : null,
-    ].filter((row) => row && row[1]);
-    return el('dl', { class: 'facts' }, rows.map(([k, v, strong]) =>
-      el('div', {}, [el('dt', { text: k }), el('dd', { class: strong ? 'is-status' : null, text: v })])));
-  };
-
-  const listOf = (items, cls) => el('ul', { class: cls }, items.map((text, i) => {
-    const li = el('li', { text });
-    li.style.setProperty('--li', i);
-    return li;
-  }));
-
-  const openButton = (g, accent) => el('button', {
-    class: `btn ${accent ? 'btn--accent' : 'btn--quiet'}`, type: 'button', 'data-open': g.id, 'aria-label': `${g.title} 자세히 보기`,
-  }, ['자세히 보기', el('span', { class: 'btn__arrow', 'aria-hidden': 'true', text: '→' })]);
-
-  /* ---------- final + featured entries ---------- */
-  const shotFor = (g) => {
-    const im = imagesOf(g)[0];
-    if (!im) return null;
-    const img = el('img', { src: im.src, alt: im.alt, loading: 'lazy', decoding: 'async' });
-    if (im.pos) img.style.objectPosition = im.pos;
-    return el('figure', { class: 'feature__shot' }, [img, el('figcaption', { text: im.caption })]);
-  };
-
-  const entryFor = (g, isFinal) => {
-    const titleId = `${isFinal ? 'fin' : 'f'}-${g.id}`;
-    const parts = [
-      el('h3', { class: 'feature__title t-mask', id: titleId }, el('span', { text: g.title })),
-      el('p', { class: 'feature__sub', text: g.subtitle }),
-      isFinal && g.description ? el('p', { class: 'feature__desc', text: g.description }) : null,
-      isFinal ? shotFor(g) : null,
-      factsList(g),
-      g.features && g.features.length ? listOf(g.features, 'feature__list') : null,
-      el('div', { class: 'feature__act' }, [openButton(g, isFinal)]),
-    ].filter(Boolean);
-    const entry = el('article', { class: `feature${isFinal ? ' feature--final' : ''}`, 'data-id': g.id, 'aria-labelledby': titleId }, parts);
-    parts.forEach((part, i) => reveal(part, i * 80));
-    return entry;
-  };
-  const finalList = $('#finalList');
-  for (const g of finals) finalList.append(entryFor(g, true));
-  const featuredList = $('#featuredList');
-  for (const g of featured) featuredList.append(entryFor(g, false));
-
-  /* ---------- archive with filter ---------- */
-  const mediaNote = (g) => {
-    const v = videosOf(g).length;
-    const i = imagesOf(g).length;
-    if (!v && !i) return '화면 없음 · 글로 기록';
-    return [v ? `영상 ${v}` : null, i ? `캡처 ${i}` : null].filter(Boolean).join(' · ');
-  };
-  const archiveList = $('#archiveList');
-  const rows = games.map((g) => {
-    const isFinal = g.final === true;
-    const row = el('article', {
-      class: 'row', 'data-id': g.id, 'data-cat': g.category, 'data-final': isFinal ? 'true' : null, 'aria-labelledby': `r-${g.id}`,
-    }, [
-      el('div', { class: 'row__main' }, [
-        el('h3', { class: 'row__title', id: `r-${g.id}`, text: g.title }),
-        el('p', { class: 'row__sub', text: g.subtitle }),
-        el('p', { class: 'row__status' }, [
-          isFinal ? el('span', { class: 'is-final', text: '최종 프로젝트' }) : null,
-          isFinal ? ' · ' : null,
-          el('strong', { text: g.status }),
-        ]),
-      ]),
-      el('div', { class: 'row__side' }, [
-        el('span', { text: g.category }),
-        el('span', { text: when(g) }),
-        el('span', { text: mediaNote(g) }),
-        openButton(g, false),
-      ]),
-    ]);
-    archiveList.append(row);
-    reveal(row);
-    return row;
-  });
-
-  const FINAL_FILTER = '__final';
-  const filters = $('#filters');
-  const status = $('#archiveStatus');
-  const filterButtons = [];
-  const makeFilter = (label, value, n, extra) => {
-    const b = el('button', { class: `filter${extra ? ` ${extra}` : ''}`, type: 'button', 'aria-pressed': 'false', 'data-cat': value }, [label, el('span', { text: n })]);
-    filterButtons.push(b);
-    filters.append(b);
-  };
-  makeFilter('전체', '', games.length);
-  if (finals.length) makeFilter('최종 프로젝트', FINAL_FILTER, finals.length, 'filter--final');
-  for (const c of categories) makeFilter(c, c, games.filter((g) => g.category === c).length);
-
-  const matches = (row, value) => !value || (value === FINAL_FILTER ? row.dataset.final === 'true' : row.dataset.cat === value);
-  let currentFilter = null;
-  let filterTimer = 0;
-
-  const applyFilter = (value, animate = true) => {
-    if (value === currentFilter) return;
-    currentFilter = value;
-    window.clearTimeout(filterTimer);
-    for (const r of rows) for (const a of r.getAnimations()) a.cancel();
-
-    const next = rows.filter((r) => matches(r, value));
-    const nextSet = new Set(next);
-    const before = rows.filter((r) => !r.hidden);
-    const leaving = before.filter((r) => !nextSet.has(r));
-    const doAnimate = animate && motionOn();
-
-    for (const b of filterButtons) b.setAttribute('aria-pressed', String(b.dataset.cat === value));
-    $('#archiveEmpty').hidden = next.length !== 0;
-    const label = value === FINAL_FILTER ? '최종 프로젝트' : value;
-    status.textContent = value ? `${label} ${next.length}편을 보고 있습니다.` : `전체 ${next.length}편을 보고 있습니다.`;
-
-    const commit = () => {
-      // FLIP: remember where the staying rows were, change the layout, then play them home.
-      const first = new Map();
-      if (doAnimate) for (const r of before) if (nextSet.has(r)) first.set(r, r.getBoundingClientRect().top);
-      for (const r of rows) r.hidden = !nextSet.has(r);
-      if (doAnimate) {
-        const vh = window.innerHeight;
-        let k = 0;
-        for (const r of next) {
-          const top = r.getBoundingClientRect().top;
-          const onScreen = top < vh && top > -r.offsetHeight;
-          if (first.has(r)) {
-            const dy = first.get(r) - top;
-            if (Math.abs(dy) > 1 && (onScreen || Math.abs(first.get(r)) < vh)) {
-              r.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], { duration: 640, easing: EASE.expo });
-            }
-          } else {
-            r.classList.add('is-in');
-            if (onScreen) {
-              r.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], {
-                duration: 640, delay: Math.min(k, 8) * 60, easing: EASE.expo, fill: 'backwards',
-              });
-              k += 1;
-            }
-          }
-        }
-      } else {
-        for (const r of next) r.classList.add('is-in');
-      }
-      queueFrame();
-    };
-
-    if (doAnimate && leaving.length) {
-      for (const r of leaving) {
-        r.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(0.98)' }], { duration: 200, easing: EASE.exit, fill: 'forwards' });
-      }
-      filterTimer = window.setTimeout(() => {
-        for (const r of leaving) for (const a of r.getAnimations()) a.cancel();
-        commit();
-      }, 200);
-    } else commit();
-  };
-  filters.addEventListener('click', (e) => {
-    const b = e.target.closest('.filter');
-    if (b) applyFilter(b.dataset.cat);
-  });
-  $('#emptyReset').addEventListener('click', () => applyFilter(''));
-  applyFilter('', false);
-
-  /* ---------- notes ---------- */
-  const notesList = $('#notesList');
-  (data.notes || []).forEach((n, i) => {
-    const note = el('div', { class: 'note' }, [el('h3', { text: n.title }), el('p', { text: n.text })]);
-    notesList.append(note);
-    reveal(note, (i % 2) * 90 + Math.floor(i / 2) * 40);
-  });
-
-  const footName = $('#footName');
-  if (!(window.CSS && CSS.supports && CSS.supports('animation-timeline: view()'))) reveal(footName);
-
-  /* ---------- typographic card: the stage for work without footage ---------- */
-  const cardLines = (g) => {
-    const details = detailsOf(g);
-    if (details.length) return details.map((d) => ({ label: d.title, text: firstSentence(d.text) }));
-    const lines = [];
-    if (g.description) lines.push({ label: '소개', text: firstSentence(g.description) });
-    for (const f of g.features || []) lines.push({ label: '주요 기능', text: f });
-    return lines;
-  };
-
-  const buildCard = (g, { bare = false } = {}) => {
-    const lines = cardLines(g);
-    const engineWord = (g.engine || '').split('·')[0].trim();
-    const word = [g.category, engineWord].filter(Boolean).join(' · ');
-    const hasStills = imagesOf(g).length > 0;
-    const factRows = [['분류', g.category], ['엔진', g.engine], ['기간', when(g)], ['상태', g.status]].filter((r) => r[1]);
-    const label = el('span', { class: 'card__line-label', text: lines[0] ? lines[0].label : '' });
-    const text = el('span', { class: 'card__line-text', text: lines[0] ? lines[0].text : '' });
-    const lineBox = el('p', { class: 'card__line' }, [label, text]);
-    const node = el('div', { class: bare ? 'card card--bare' : 'card', 'aria-hidden': 'true' }, [
-      el('p', { class: 'card__word' }, el('span', { class: 'card__track' }, [0, 1, 2, 3].map(() => el('span', { text: word })))),
-      el('div', { class: 'card__head' }, [
-        el('div', { class: 'card__mask' }, el('p', { class: 'card__title', text: g.title })),
-        el('p', { class: 'card__sub', text: g.subtitle }),
-        el('p', { class: 'card__mini', text: hasStills ? `정보 카드 · ${g.category}` : `정보 카드 · 화면 없음` }),
-      ]),
-      el('dl', { class: 'card__facts' }, factRows.map(([k, v], i) => {
-        const d = el('div', {}, [el('dt', { text: k }), el('dd', { text: v })]);
-        d.style.setProperty('--i', i);
-        return d;
-      })),
-      lines.length ? lineBox : null,
-      el('p', { class: 'card__tag', text: hasStills ? `정보 카드 · 캡처 ${imagesOf(g).length}장 · 등록된 영상 없음` : '정보 카드 · 확보한 실행 화면 없음' }),
-    ]);
-    return { node, lines, label, text, lineBox, i: 0 };
-  };
-
-  const rotateCard = (card) => {
-    if (card.lines.length < 2) return;
-    card.i = (card.i + 1) % card.lines.length;
-    const line = card.lines[card.i];
-    const set = () => { card.label.textContent = line.label; card.text.textContent = line.text; };
-    if (!motionOn()) { set(); return; }
-    const out = card.lineBox.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-10px)' }], { duration: 220, easing: EASE.exit, fill: 'forwards' });
-    out.onfinish = () => {
-      set();
-      out.cancel();
-      card.lineBox.animate([{ opacity: 0, transform: 'translateY(14px)' }, { opacity: 1, transform: 'none' }], { duration: 560, easing: EASE.out });
-    };
-  };
-  const CARD_LINE_MS = 4200;
-
-  /* ---------- the stage ---------- */
-  const stageEl = $('#stage');
-  const stage = {
-    layers: [...document.querySelectorAll('.stage__layer')],
-    front: 0,
-    key: '',
-    gameId: '',
-    playlist: [],
-    index: 0,
-    timer: 0,
-    clearTimer: 0,
-    cardTimer: 0,
-    card: null,
-    timerAnim: null,
-    paused: !motionOn(),
-    userPaused: false, // the visitor pressed 멈춤; motion coming back on must not undo that
-    held: false, // a detail video the visitor started is playing; the stage stays still under it
-    visible: true,
-    mode: '',
-    reelIndex: 0,
-  };
-  const stageTitle = $('#stageTitle');
-  const stageWhere = $('#stageWhere');
-  const stageCaption = $('#stageCaption');
-  const stageStrip = $('#stageStrip');
-  const stageTimer = $('#stageTimer');
-  const toggle = $('#stageToggle');
-
-  // One stage item per media file: a game's videos; otherwise its captures followed by its information card;
-  // with nothing at all, the card alone.
-  const itemsFor = (g) => {
-    const videos = videosOf(g).map((v) => ({ game: g, kind: 'video', src: v.src, poster: v.poster, caption: v.caption, alt: v.title }));
-    if (videos.length) return videos;
-    const stills = imagesOf(g).map((im) => ({ game: g, kind: 'image', src: im.src, caption: im.caption, alt: im.alt, pos: im.pos }));
-    const card = {
-      game: g,
-      kind: 'card',
-      caption: stills.length ? '정보 카드 · 등록된 영상이 없어 캡처와 함께 작품 정보를 보여 줍니다.' : `확보한 실행 화면이 없어 정보 카드로 소개합니다 · ${g.status}`,
-    };
-    return [...stills, card];
-  };
-  const reelGames = finals.length || featured.length ? [...finals, ...featured] : games.slice(0, 6);
-  const reel = reelGames.map((g) => itemsFor(g)[0]);
-  const holdFor = (item) => (item.kind === 'image' ? 6000 : 9000);
-
-  const KEN_BURNS = [
-    [[1.12, -2, -1.5], [1.0, 1, 1]],
-    [[1.0, 1.5, 1], [1.11, -1.5, -1]],
-    [[1.1, 2, -1], [1.02, -1, 1.2]],
-    [[1.03, -1, 1.5], [1.12, 1.6, -1]],
-  ];
-  let kenIndex = 0;
-  const kenBurns = (img, ms) => {
-    if (!motionOn()) return;
-    const [[s0, x0, y0], [s1, x1, y1]] = KEN_BURNS[kenIndex++ % KEN_BURNS.length];
-    img.animate([
-      { transform: `translate(${x0}%, ${y0}%) scale(${s0})` },
-      { transform: `translate(${x1}%, ${y1}%) scale(${s1})` },
-    ], { id: 'ken-burns', duration: ms + 2000, easing: 'linear', fill: 'both' });
-  };
-
-  const stopVideo = (v) => { v.pause(); v.removeAttribute('src'); v.load(); };
-
-  const buildMedia = (item) => {
-    if (item.kind === 'video') {
-      const v = el('video', { muted: true, loop: true, playsInline: true, preload: 'auto', 'aria-label': `${item.game.title} · ${item.alt}` });
-      v.muted = true;
-      v.setAttribute('muted', '');
-      v.setAttribute('playsinline', '');
-      if (item.poster) v.poster = item.poster;
-      v.src = item.src;
-      return { node: v };
-    }
-    if (item.kind === 'image') {
-      const img = el('img', { src: item.src, alt: item.alt, decoding: 'async' });
-      if (item.pos) img.style.objectPosition = item.pos;
-      kenBurns(img, holdFor(item));
-      return { node: img };
-    }
-    const card = buildCard(item.game);
-    return { node: card.node, card };
-  };
-
-  const playbackAllowed = () => !stage.paused && !stage.held && stage.visible && !document.hidden;
-  const playFront = () => {
-    if (playbackAllowed()) {
-      const v = stage.layers[stage.front].querySelector('video');
-      if (v) v.play().catch(() => {});
-      return;
-    }
-    // Held or paused: the outgoing layer's clip stops too, not only the one in front.
-    for (const v of stageEl.querySelectorAll('.stage__layer video')) v.pause();
-  };
-  const holdAnimations = () => {
-    const run = playbackAllowed();
-    for (const layer of stage.layers) {
-      // Only the slow drift on stills holds with the stage; entrances, wipes and transitions always finish.
-      for (const a of layer.getAnimations({ subtree: true })) {
-        if (a.id !== 'ken-burns') continue;
-        if (!run && a.playState === 'running') a.pause();
-        else if (run && a.playState === 'paused') a.play();
-      }
-    }
-    stageEl.classList.toggle('is-paused', !run);
-  };
-
-  const stopCard = () => { window.clearInterval(stage.cardTimer); stage.cardTimer = 0; };
-  const startCard = () => {
-    stopCard();
-    const c = stage.card;
-    if (!c || c.lines.length < 2 || !playbackAllowed()) return;
-    stage.cardTimer = window.setInterval(() => rotateCard(c), CARD_LINE_MS);
-  };
-
-  const stopTimerBar = () => { if (stage.timerAnim) { stage.timerAnim.cancel(); stage.timerAnim = null; } };
-  const runTimerBar = (ms) => {
-    stopTimerBar();
-    if (!motionOn()) return;
-    stage.timerAnim = stageTimer.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: ms, easing: 'linear', fill: 'forwards' });
-  };
-
-  const swapMeta = (item) => {
-    const g = item.game;
-    const newGame = g.id !== stage.gameId;
-    stage.gameId = g.id;
-    stageWhere.replaceChildren(
-      ...(g.final === true ? [el('strong', { text: '최종 프로젝트' }), ' · '] : []),
-      [g.category, when(g)].filter(Boolean).join(' · '),
-    );
-    stageCaption.textContent = item.caption || '';
-    if (newGame) stageTitle.textContent = g.title;
-    if (motionOn()) {
-      if (newGame) stageTitle.animate([{ transform: 'translateY(105%)' }, { transform: 'none' }], { duration: 900, easing: EASE.expo });
-      stageCaption.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 140, easing: EASE.out, fill: 'backwards' });
-    }
-    if (!newGame) return;
-    const stills = imagesOf(g).filter((im) => im.src !== item.src && im.src !== item.poster).slice(0, 4);
-    stageStrip.replaceChildren(...stills.map((im, i) => {
-      const img = el('img', { src: im.src, alt: im.alt, loading: 'lazy', decoding: 'async' });
-      if (im.pos) img.style.objectPosition = im.pos;
-      if (motionOn()) {
-        img.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], { duration: 600, delay: 180 + i * 70, easing: EASE.out, fill: 'backwards' });
-      }
-      return img;
+  /* ---------- notes (static, outside the project page) ---------- */
+  if (notesList) {
+    notesList.replaceChildren(...notes.map((n, i) => {
+      const note = el('article', { class: 'note', 'data-kind': n.kind || null }, [el('h3', { text: n.title }), el('p', { text: n.text })]);
+      note.style.setProperty('--i', i);
+      return note;
     }));
-  };
-
-  const LEAVE_TO = { down: 'translateY(-6%)', up: 'translateY(6%)', next: 'translateX(-8%)' };
-  const ENTER_FROM = { down: 'inset(100% 0 0 0)', up: 'inset(0 0 100% 0)', next: 'inset(0 0 0 100%)' };
-  const show = (item, dir = 'down') => {
-    const back = stage.layers[1 - stage.front];
-    const old = stage.layers[stage.front];
-    window.clearTimeout(stage.clearTimer);
-    stopCard();
-    for (const a of back.getAnimations({ subtree: true })) a.cancel();
-    back.querySelectorAll('video').forEach(stopVideo);
-    const built = buildMedia(item);
-    back.replaceChildren(built.node);
-    back.classList.remove('is-leaving');
-    back.classList.add('is-on');
-    old.classList.remove('is-on');
-    old.classList.add('is-leaving');
-    stage.front = 1 - stage.front;
-    stage.card = built.card || null;
-
-    const moving = motionOn();
-    if (moving) {
-      back.animate([
-        { clipPath: ENTER_FROM[dir] || ENTER_FROM.down, transform: 'scale(1.06)' },
-        { clipPath: 'inset(0 0 0 0)', transform: 'none' },
-      ], { duration: 1150, easing: EASE.io });
-      old.animate([
-        { transform: 'none', opacity: 1 },
-        { transform: LEAVE_TO[dir] || LEAVE_TO.down, opacity: 0.3 },
-      ], { duration: 1150, easing: EASE.io, fill: 'forwards' });
-    }
-    stage.clearTimer = window.setTimeout(() => {
-      for (const a of old.getAnimations({ subtree: true })) a.cancel();
-      old.querySelectorAll('video').forEach(stopVideo);
-      old.replaceChildren();
-      old.classList.remove('is-leaving');
-    }, moving ? 1250 : 0);
-
-    playFront();
-    holdAnimations();
-    startCard();
-    swapMeta(item);
-  };
-
-  const schedule = () => {
-    window.clearTimeout(stage.timer);
-    if (!playbackAllowed() || stage.playlist.length < 2) { stopTimerBar(); return; }
-    const hold = holdFor(stage.playlist[stage.index]);
-    runTimerBar(hold);
-    stage.timer = window.setTimeout(() => {
-      stage.index = (stage.index + 1) % stage.playlist.length;
-      if (stage.mode === 'reel') stage.reelIndex = stage.index;
-      show(stage.playlist[stage.index], 'next');
-      schedule();
-    }, hold);
-  };
-
-  const setStage = (key, dir = 'down') => {
-    if (key === stage.key) return;
-    const playlist = key === 'reel' ? reel : (byId.has(key) ? itemsFor(byId.get(key)) : null);
-    if (!playlist || !playlist.length) return;
-    stage.key = key;
-    stage.mode = key === 'reel' ? 'reel' : 'project';
-    stage.playlist = playlist;
-    stage.index = key === 'reel' ? stage.reelIndex : 0;
-    show(stage.playlist[stage.index], dir);
-    schedule();
-    for (const node of document.querySelectorAll('.is-live')) node.classList.remove('is-live');
-    if (key !== 'reel') document.querySelectorAll(`[data-id="${CSS.escape(key)}"]`).forEach((n) => n.classList.add('is-live'));
-  };
-
-  const refreshPlayback = () => {
-    playFront();
-    holdAnimations();
-    startCard();
-    schedule();
-  };
-  const syncToggle = () => {
-    toggle.textContent = stage.paused ? '재생' : '멈춤';
-    toggle.setAttribute('aria-pressed', String(stage.paused));
-    toggle.setAttribute('aria-label', stage.paused ? '무대 재생' : '무대 멈춤');
-  };
-  toggle.addEventListener('click', () => {
-    stage.paused = !stage.paused;
-    stage.userPaused = stage.paused;
-    syncToggle();
-    refreshPlayback();
-  });
-  syncToggle();
-
-  motionListeners.push((on) => {
-    stage.paused = !on || stage.userPaused;
-    syncToggle();
-    refreshPlayback();
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      window.clearTimeout(stage.timer);
-      stopTimerBar();
-      stopCard();
-      playFront();
-      document.querySelectorAll('.sheet video').forEach((sv) => sv.pause());
-      holdAnimations();
-    } else refreshPlayback();
-  });
-
-  // Pause the stage when it scrolls out of view (the notes and footer sit below the split).
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver((entries) => {
-      const visible = entries[entries.length - 1].isIntersecting;
-      if (visible === stage.visible) return;
-      stage.visible = visible;
-      refreshPlayback();
-    }, { threshold: 0.05 }).observe(stageEl);
   }
+  if (notesSection) {
+    notesSection.setAttribute('tabindex', '-1');
+    if (!notes.length) notesSection.hidden = true;
+    notesSection.querySelectorAll('[data-reveal]').forEach((n) => staticReveal.observe(n));
+    if (notesList) for (const n of notesList.children) { n.setAttribute('data-reveal', ''); staticReveal.observe(n); }
+  }
+  // Anything else the shell marks for reveal outside the project page.
+  document.querySelectorAll('[data-reveal]:not(.is-in)').forEach((n) => {
+    if (!notesSection || !notesSection.contains(n)) staticReveal.observe(n);
+  });
 
-  /* ---------- scroll sync: whichever entry crosses the reading line takes the stage ---------- */
-  const hero = $('.hero');
-  // Section heads are interludes: the stage goes back to the reel (final projects first).
-  const entries = [...document.querySelectorAll('.sec-head, .feature, .row')];
-  let pendingKey = '';
-  let switchTimer = 0;
-  let lastY = window.scrollY;
-  let scrollDir = 'down';
+  /* ---------- header pickers ---------- */
+  const countOf = (cat) => gamesIn(cat).length;
+  if (catSelect) {
+    catSelect.replaceChildren(...[
+      el('option', { value: CAT_ALL, text: `전체 (${games.length})` }),
+      finals.length ? el('option', { value: CAT_FINAL, text: `최종 프로젝트 (${finals.length})` }) : null,
+      ...genres.map((c) => el('option', { value: c, text: `${c} (${countOf(c)})` })),
+    ].filter(Boolean));
+  }
+  let filledCat = null;
+  const fillGames = (cat) => {
+    if (!gameSelect || cat === filledCat) return;
+    filledCat = cat;
+    const items = gamesIn(cat);
+    const fin = items.filter(isFinal);
+    const rest = items.filter((g) => !isFinal(g));
+    const option = (g) => el('option', { value: g.id, text: g.title });
+    gameSelect.replaceChildren(...(fin.length && rest.length
+      ? [el('optgroup', { label: '최종 프로젝트' }, fin.map(option)), el('optgroup', { label: '다른 작품' }, rest.map(option))]
+      : items.map(option)));
+  };
 
-  const pick = () => {
-    const y = window.scrollY;
-    if (y !== lastY) { scrollDir = y > lastY ? 'down' : 'up'; lastY = y; }
-    if (sheet.open) return;
-    const vh = window.innerHeight;
-    const band = splitMQ.matches ? 0 : stageEl.getBoundingClientRect().height;
-    const line = band + (vh - band) * (splitMQ.matches ? 0.45 : 0.3);
-    let key = '';
-    if (hero.getBoundingClientRect().bottom > line) key = 'reel';
-    else {
-      for (const entry of entries) {
-        if (entry.hidden || entry.closest('[hidden]')) continue;
-        const r = entry.getBoundingClientRect();
-        if (r.top <= line && r.bottom >= line) { key = entry.dataset.id || 'reel'; break; }
+  /* ---------- state ---------- */
+  const state = { id: '', cat: CAT_ALL, page: null };
+  let heroUserPaused = false; // the visitor paused the intro video; stays until they press play again
+  let appliedHash = null;
+
+  const say = (() => {
+    let timer = 0;
+    return (msg) => {
+      if (!routeStatus) return;
+      window.clearTimeout(timer);
+      routeStatus.textContent = '';
+      timer = window.setTimeout(() => { routeStatus.textContent = msg; }, 80);
+    };
+  })();
+
+  const headerOffset = () => {
+    if (!header) return 0;
+    const pos = window.getComputedStyle(header).position;
+    if (pos !== 'sticky' && pos !== 'fixed') return 0;
+    return Math.max(0, header.getBoundingClientRect().bottom);
+  };
+  const scrollToY = (y) => window.scrollTo({ top: Math.max(0, Math.round(y)), left: 0, behavior: 'instant' });
+  const sectionNode = (name) => {
+    if (name === 'notes') return notesSection;
+    const p = state.page;
+    return p ? p.sections.get(name) || null : null;
+  };
+  const scrollToSection = (name) => {
+    const node = sectionNode(name);
+    if (!node || name === 'intro') { scrollToY(0); return node; }
+    scrollToY(node.getBoundingClientRect().top + window.scrollY - headerOffset());
+    return node;
+  };
+
+  /* ---------- playback: one video at a time; the intro video only when allowed ---------- */
+  const heroWants = (p) => !!p.video && !p.failed && !p.blocked && !heroUserPaused && (motionOn() || p.userPlayed);
+  const heroMayRun = (p) => heroWants(p) && !p.held && p.visible && !document.hidden;
+
+  const syncHeroControls = (p) => {
+    if (!p.toggle) return;
+    const v = p.video;
+    if (p.failed) {
+      p.toggle.disabled = true;
+      p.toggle.textContent = '재생 불가';
+      p.toggle.dataset.state = 'error';
+      p.toggle.setAttribute('aria-label', '대표 영상을 불러오지 못했습니다');
+    } else {
+      const playing = !v.paused || p.pending;
+      p.toggle.textContent = playing ? '일시정지' : '재생';
+      p.toggle.dataset.state = playing ? 'playing' : 'paused';
+      p.toggle.setAttribute('aria-label', playing ? '대표 영상 일시정지' : '대표 영상 재생');
+    }
+    if (p.sound) {
+      p.sound.disabled = p.failed;
+      p.sound.textContent = v.muted ? '소리 켜기' : '소리 끄기';
+      p.sound.dataset.state = v.muted ? 'muted' : 'unmuted';
+      p.sound.setAttribute('aria-label', v.muted ? '대표 영상 소리 켜기' : '대표 영상 소리 끄기');
+    }
+  };
+
+  const syncHero = () => {
+    const p = state.page;
+    if (!p || !p.video) return;
+    const v = p.video;
+    if (heroMayRun(p)) {
+      if (v.paused && !p.pending) {
+        if (v.getAttribute('preload') !== 'auto') v.setAttribute('preload', 'auto');
+        p.pending = true;
+        let attempt;
+        try { attempt = v.play(); } catch (e) { attempt = Promise.reject(e); }
+        Promise.resolve(attempt).then(() => {
+          p.pending = false;
+          // A newer project, a pause or a scroll may have landed while play() was pending.
+          if (state.page !== p || !heroMayRun(p)) v.pause();
+          syncHeroControls(p);
+        }, (err) => {
+          p.pending = false;
+          if (state.page === p && err && err.name === 'NotAllowedError') p.blocked = true;
+          syncHeroControls(p);
+        });
       }
+    } else if (!v.paused || p.pending) {
+      v.pause();
     }
-    if (!key || key === pendingKey) return;
-    pendingKey = key;
-    window.clearTimeout(switchTimer);
-    const dir = scrollDir;
-    switchTimer = window.setTimeout(() => setStage(pendingKey, dir), stage.key ? 160 : 0);
-  };
-  onFrame = pick;
-
-  /* hover or keyboard focus on an entry previews it on the stage (desktop split only for hover) */
-  const column = $('#main');
-  let hoverTimer = 0;
-  let hoverKey = '';
-  column.addEventListener('pointerover', (e) => {
-    if (!hoverMQ.matches || !splitMQ.matches || sheet.open) return;
-    if (performance.now() - lastScrollAt < 400) return;
-    const host = e.target.closest('.row, .feature');
-    if (!host || host.dataset.id === hoverKey) return;
-    hoverKey = host.dataset.id;
-    window.clearTimeout(hoverTimer);
-    hoverTimer = window.setTimeout(() => { pendingKey = hoverKey; setStage(hoverKey, 'next'); }, 220);
-  });
-  column.addEventListener('pointerleave', () => {
-    window.clearTimeout(hoverTimer);
-    if (!hoverKey) return;
-    hoverKey = '';
-    pendingKey = '';
-    queueFrame();
-  });
-  column.addEventListener('focusin', (e) => {
-    if (sheet.open) return;
-    const host = e.target.closest('.row, .feature');
-    if (host) { pendingKey = host.dataset.id; setStage(host.dataset.id, 'next'); }
-  });
-
-  /* ---------- detail sheet ---------- */
-  const sheet = $('#sheet');
-  const sheetBody = $('#sheetBody');
-  let opener = null;
-  let closing = false;
-  let closeTimer = 0;
-  let sheetCardTimer = 0;
-  let sheetCard = null;
-  let shownId = '';
-  // History: opening a detail adds one #p=<id> entry, so Back closes it and Forward reopens it.
-  // DOC_KEY marks entries this page load pushed; only those are popped again when the sheet closes.
-  const DOC_KEY = Math.random().toString(36).slice(2);
-  let awaitingBack = false;
-  let queuedOpen = null;
-  // The reading position the detail opened from. The browser's own restore on Back is switched off
-  // for these entries (it may hold a mid-scroll value); closing returns here instead.
-  let returnY = 0;
-  const restoreScroll = () => window.scrollTo({ top: returnY, behavior: 'instant' });
-  const hashId = () => {
-    const m = /^#p=([\w-]+)$/.exec(location.hash);
-    return m && byId.has(m[1]) ? m[1] : '';
+    syncHeroControls(p);
   };
 
-  const sheetVideoObserver = 'IntersectionObserver' in window
-    ? new IntersectionObserver((list) => {
-        for (const entry of list) if (!entry.isIntersecting && !entry.target.paused) entry.target.pause();
-      }, { root: sheet, threshold: 0.2 })
-    : null;
+  const pauseOthers = (keep) => {
+    for (const m of document.querySelectorAll('video, audio')) if (m !== keep && !m.paused) m.pause();
+  };
 
-  // One detail video plays at a time, and the stage holds still under it.
-  sheetBody.addEventListener('play', (e) => {
-    if (e.target.tagName !== 'VIDEO') return;
-    for (const v of sheetBody.querySelectorAll('video')) if (v !== e.target && !v.paused) v.pause();
-    if (!stage.held) { stage.held = true; refreshPlayback(); }
+  document.addEventListener('play', (e) => {
+    const v = e.target;
+    if (!(v instanceof HTMLMediaElement)) return;
+    const p = state.page;
+    if (!p || !p.root.contains(v) || document.hidden) { v.pause(); return; }
+    if (v !== p.video) {
+      // Started without being on screen (media keys, devtools): the visibility observer would never fire for it.
+      const r = v.getBoundingClientRect();
+      if (!r.width || r.bottom <= headerOffset() || r.top >= window.innerHeight) { v.pause(); return; }
+    }
+    pauseOthers(v);
+    if (v === p.video) {
+      p.held = false;
+    } else {
+      p.held = true;
+      syncHero();
+    }
   }, true);
-  const releaseStage = () => {
-    if (!stage.held || [...sheetBody.querySelectorAll('video')].some((v) => !v.paused)) return;
-    stage.held = false;
-    refreshPlayback();
-  };
-  sheetBody.addEventListener('pause', releaseStage, true);
-  sheetBody.addEventListener('ended', releaseStage, true);
-
-  const startSheetCard = () => {
-    window.clearInterval(sheetCardTimer);
-    if (sheet.open && sheetCard && sheetCard.lines.length > 1 && motionOn()) {
-      sheetCardTimer = window.setInterval(() => rotateCard(sheetCard), CARD_LINE_MS);
+  const onBodyStop = (e) => {
+    const v = e.target;
+    const p = state.page;
+    if (!p || !(v instanceof HTMLMediaElement) || v === p.video || !p.root.contains(v)) return;
+    if (p.held && !p.bodyVideos.some((b) => !b.paused)) {
+      p.held = false;
+      syncHero();
     }
   };
-  motionListeners.push(startSheetCard);
-
-  // On narrow screens the sheet opens under the stage band, so the project keeps playing above it.
-  const syncSheetTop = () => {
-    const bandBottom = splitMQ.matches ? 0 : Math.max(0, Math.round(stageEl.getBoundingClientRect().bottom));
-    html.style.setProperty('--sheet-top', `${bandBottom}px`);
-  };
-  window.addEventListener('resize', () => { if (sheet.open) syncSheetTop(); });
-
-  const mediaFigure = (kind, item, lazy) => {
-    const media = kind === 'video'
-      ? el('video', { controls: true, playsInline: true, preload: 'metadata', poster: item.poster || null, src: item.src, 'aria-label': item.title })
-      : el('img', { src: item.src, alt: item.alt, loading: lazy ? 'lazy' : null, decoding: 'async' });
-    if (kind === 'image' && item.pos) media.style.objectPosition = item.pos;
-    if (kind === 'video' && sheetVideoObserver) sheetVideoObserver.observe(media);
-    const fig = el('figure', { class: 'media' }, [
-      media,
-      el('figcaption', {}, [kind === 'video' ? el('strong', { text: item.title }) : null, item.caption]),
-    ]);
-    return fig;
-  };
-
-  const openSheet = (id, from, routed = false) => {
-    const g = byId.get(id);
-    if (!g) return;
-    // A close is still stepping back through history; open once that lands.
-    if (awaitingBack && !routed) { queuedOpen = { id, from }; return; }
-    window.clearTimeout(closeTimer);
-    closing = false;
-    sheet.classList.remove('is-closing');
-    opener = from || null;
-    if (!sheet.open) {
-      window.scrollTo({ top: window.scrollY, behavior: 'instant' }); // settle any smooth scroll still running
-      returnY = window.scrollY;
+  document.addEventListener('pause', onBodyStop, true);
+  document.addEventListener('ended', onBodyStop, true);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseOthers(null);
+    syncHero();
+  });
+  motionListeners.push((on) => {
+    const p = state.page;
+    if (!p) return;
+    if (!on) {
+      p.userPlayed = false;
+      p.reveal.flush();
     }
-    const isFinal = g.final === true;
-    $('#sheetCrumb').replaceChildren(
-      ...(isFinal ? [el('strong', { text: '최종 프로젝트' }), ' · '] : []),
-      [g.category, when(g)].filter(Boolean).join(' · '),
-    );
+    syncHero();
+  });
+
+  /* ---------- project page ---------- */
+  const setFormat = (node, w, h) => {
+    if (!w || !h) return;
+    const ar = w / h;
+    node.style.setProperty('--ar', ar.toFixed(4));
+    node.dataset.format = ar >= 1 ? 'landscape' : 'portrait';
+  };
+
+  const destroyPage = () => {
+    const p = state.page;
+    if (!p) return;
+    state.page = null;
+    p.ctl.abort();
+    for (const o of p.observers) o.disconnect();
+    p.reveal.disconnect();
+    for (const v of p.root.querySelectorAll('video')) {
+      v.pause();
+      v.removeAttribute('src');
+      v.load(); // drops the buffered data and any download in flight
+    }
+    for (const img of p.root.querySelectorAll('img')) if (!img.complete) img.removeAttribute('src');
+    p.root.remove();
+  };
+
+  const sectionHead = (id, title) => el('header', { class: 'section__head', 'data-reveal': true }, el('h2', { id, text: title }));
+
+  const buildHero = (g, p, on) => {
     const videos = videosOf(g);
     const images = imagesOf(g);
-    const noMedia = videos.length === 0 && images.length === 0;
-    const details = detailsOf(g);
-    let card = null;
-    if (noMedia) card = buildCard(g, { bare: true });
+    const v0 = videos[0];
+    const im0 = images[0];
+    const kind = v0 ? 'video' : im0 ? 'image' : 'empty';
+    const hero = el('section', { id: 'intro', class: 'hero', 'data-kind': kind, 'aria-labelledby': 'gameTitle', tabindex: '-1' });
+    const stage = el('div', { class: 'hero__stage' });
+    const body = el('div', { class: 'hero__body' });
+    const errorLine = (msg) => {
+      hero.dataset.error = kind;
+      if (!body.querySelector('.hero__error')) body.append(el('p', { class: 'hero__error', text: msg }));
+    };
 
-    const items = [
-      card ? el('div', { class: 'sheet__card' }, card.node) : null,
-      el('h2', { class: 'sheet__title t-mask', id: 'sheetTitle' }, el('span', { text: g.title })),
-      el('p', { class: 'sheet__sub', text: g.subtitle }),
-      isFinal ? el('p', { class: 'sheet__final', text: `최종 프로젝트 ${countWord(finals.length)} 편 가운데 하나입니다.` }) : null,
-      el('p', { class: 'sheet__status' }, [el('span', { text: '현재 상태' }), el('strong', { text: g.status })]),
-      el('p', { class: 'sheet__desc', text: g.description }),
-      details.length
-        ? el('div', { class: `details${noMedia ? ' details--lead' : ''}` }, details.map((d) => el('section', { class: 'detail' }, [
-            el('h3', { text: d.title }),
-            el('p', { text: d.text }),
-          ])))
-        : null,
-      factsList(g, { withTools: true, withStatus: false }),
-      g.features && g.features.length ? el('h3', { text: '주요 기능' }) : null,
-      g.features && g.features.length ? el('ul', { class: 'sheet__list' }, g.features.map((f) => el('li', { text: f }))) : null,
-      g.history && g.history.length ? el('h3', { text: '개발 기록' }) : null,
-      g.history && g.history.length ? el('ol', { class: 'sheet__list' }, g.history.map((h) => el('li', { text: h }))) : null,
-    ];
-    if (noMedia) {
-      items.push(
-        el('h3', { text: '화면과 영상' }),
-        el('p', { class: 'sheet__empty', text: '확보한 실행 화면과 영상이 없어 글과 정보 카드로 기록했습니다. 다른 게임의 화면을 대신 쓰지 않습니다.' }),
-      );
+    const ambientSrc = v0 ? v0.poster : im0 ? im0.src : '';
+    if (ambientSrc) {
+      const ambient = el('img', { class: 'hero__ambient', alt: '', 'aria-hidden': 'true', decoding: 'async', src: ambientSrc });
+      on(ambient, 'load', () => { if (!hero.dataset.format) setFormat(hero, ambient.naturalWidth, ambient.naturalHeight); });
+      on(ambient, 'error', () => ambient.remove());
+      if (ambient.complete && ambient.naturalWidth) setFormat(hero, ambient.naturalWidth, ambient.naturalHeight);
+      stage.append(ambient);
+    }
+
+    if (v0) {
+      const video = el('video', {
+        class: 'hero__video',
+        preload: motionOn() && !heroUserPaused ? 'auto' : 'metadata',
+        muted: true,
+        loop: true,
+        playsinline: true,
+        poster: v0.poster || null,
+        'aria-label': `대표 영상 · ${v0.title || g.title}`,
+      });
+      video.muted = true;
+      video.defaultMuted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.src = v0.src;
+      on(video, 'loadedmetadata', () => setFormat(hero, video.videoWidth, video.videoHeight));
+      on(video, 'play', () => syncHeroControls(p));
+      on(video, 'pause', () => syncHeroControls(p));
+      on(video, 'volumechange', () => syncHeroControls(p));
+      on(video, 'error', () => {
+        p.failed = true;
+        p.pending = false;
+        errorLine('대표 영상을 불러오지 못했습니다. 새로고침 후 다시 확인해 주세요. 캡션과 아래 작업 내용은 그대로 읽을 수 있습니다.');
+        syncHeroControls(p);
+      });
+      p.video = video;
+      stage.append(el('div', { class: 'hero__media' }, video));
+    } else if (im0) {
+      const img = el('img', { class: 'hero__image', alt: im0.alt || '', decoding: 'async', fetchpriority: 'high', src: im0.src });
+      if (im0.pos) img.style.objectPosition = im0.pos;
+      on(img, 'load', () => setFormat(hero, img.naturalWidth, img.naturalHeight));
+      on(img, 'error', () => errorLine('대표 화면을 불러오지 못했습니다. 새로고침 후 다시 확인해 주세요. 캡션과 아래 작업 내용은 그대로 읽을 수 있습니다.'));
+      if (img.complete && img.naturalWidth) setFormat(hero, img.naturalWidth, img.naturalHeight);
+      stage.append(el('div', { class: 'hero__media' }, img));
     } else {
-      items.push(
-        el('h3', { text: '영상' }),
-        videos.length
-          ? el('div', {}, videos.map((v) => mediaFigure('video', v)))
-          : el('p', { class: 'sheet__empty', text: '이 작품에는 등록된 영상이 없습니다.' }),
-        el('h3', { text: '화면' }),
-        images.length
-          ? el('div', { class: 'gallery' }, images.map((im, i) => mediaFigure('image', im, i > 0)))
-          : el('p', { class: 'sheet__empty', text: '확보한 실행 화면이 없습니다.' }),
-      );
+      stage.append(el('div', { class: 'hero__empty' }, [
+        el('p', { class: 'hero__empty-label', text: '화면 기록 없음' }),
+        el('p', { class: 'hero__empty-text', text: '이 작품은 확보한 실행 화면과 영상이 없어 글로 기록했습니다. 다른 게임의 화면을 대신 쓰지 않습니다.' }),
+        el('p', { class: 'hero__empty-status', text: `현재 상태 · ${g.status || '기록 없음'}` }),
+      ]));
     }
-    const children = items.filter(Boolean);
-    let n = 0;
-    for (const child of children) {
-      if (child.classList.contains('sheet__title')) continue;
-      if (n < 10) { child.classList.add('s-item'); child.style.setProperty('--i', n); }
-      n += 1;
-    }
-    sheet.querySelectorAll('video').forEach((v) => v.pause());
-    sheetBody.replaceChildren(...children);
-    if (stage.held) { stage.held = false; refreshPlayback(); }
-    sheetBody.querySelectorAll('.gallery .media').forEach((fig, i) => { if (i > 0) reveal(fig); });
-    sheetCard = card;
-    shownId = g.id;
 
-    pendingKey = g.id;
-    setStage(g.id, 'next');
-    syncSheetTop();
-    const wasOpen = sheet.open;
-    if (!wasOpen) sheet.showModal();
-    sheet.scrollTop = 0;
-    $('#sheetClose').focus();
-    startSheetCard();
-    if (!routed && location.hash !== `#p=${g.id}`) {
-      // Switching projects inside an open sheet reuses its entry; Back still closes in one step.
-      const ours = wasOpen && history.state && history.state.doc === DOC_KEY;
-      try {
-        if (!ours) history.scrollRestoration = 'manual';
-        history[ours ? 'replaceState' : 'pushState']({ sheet: g.id, doc: DOC_KEY }, '', `#p=${g.id}`);
-      } catch (e) { /* file:// may refuse; the sheet still opens */ }
-    }
-  };
+    const metaParts = [
+      isFinal(g) ? el('span', { class: 'hero__badge', text: '최종 프로젝트' }) : null,
+      g.category ? el('span', { class: 'hero__category', text: g.category }) : null,
+      g.engine ? el('span', { class: 'hero__engine', text: g.engine }) : null,
+    ].filter(Boolean);
+    const meta = el('p', { class: 'hero__meta' });
+    metaParts.forEach((part, i) => { if (i) meta.append(' · '); meta.append(part); });
 
-  // Runs right after every close (ours, or the browser's own on a repeated Esc); the dialog's
-  // close event arrives a task later and must not undo a sheet that has opened again since.
-  const finishClose = () => {
-    if (!shownId || sheet.open) return;
-    window.clearTimeout(closeTimer);
-    window.clearInterval(sheetCardTimer);
-    closing = false;
-    sheet.classList.remove('is-closing');
-    sheet.querySelectorAll('video').forEach((v) => v.pause());
-    releaseStage();
-    // Closed by the button, Esc or the backdrop while the address still names this detail:
-    // step back off the entry we pushed, or tidy a deep link's address in place.
-    try {
-      if (location.hash === `#p=${shownId}`) {
-        const st = history.state;
-        if (st && st.doc === DOC_KEY && st.sheet === shownId) { awaitingBack = true; history.back(); }
-        else history.replaceState(null, '', location.pathname + location.search);
+    const actions = el('div', { class: 'hero__actions' });
+    if (v0) {
+      p.toggle = el('button', { class: 'hero__btn', id: 'heroToggle', type: 'button' });
+      on(p.toggle, 'click', () => {
+        const v = p.video;
+        if (p.failed) return;
+        if (!v.paused || p.pending) {
+          heroUserPaused = true;
+          p.userPlayed = false;
+        } else {
+          heroUserPaused = false;
+          p.userPlayed = true;
+          p.blocked = false;
+          p.held = false;
+          p.visible = true; // pressed on screen; the observer takes over on the next crossing
+        }
+        syncHero();
+      });
+      actions.append(p.toggle);
+      if (/소리 있음/.test(v0.caption || '')) {
+        p.sound = el('button', { class: 'hero__btn hero__btn--sound', id: 'heroSound', type: 'button' });
+        on(p.sound, 'click', () => {
+          const v = p.video;
+          v.muted = !v.muted;
+          if (!v.muted && v.paused && !p.pending) {
+            heroUserPaused = false;
+            p.userPlayed = true;
+            p.blocked = false;
+            p.held = false;
+            p.visible = true;
+            syncHero();
+          }
+          syncHeroControls(p);
+        });
+        actions.append(p.sound);
       }
-    } catch (e) { /* ignore */ }
-    shownId = '';
-    if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
-    restoreScroll();
-    pendingKey = '';
-    queueFrame();
+    }
+    actions.append(el('a', { class: 'hero__link', 'data-section': 'work', href: hrefFor(g.id, 'work') }, '작업 내용 보기'));
+
+    body.append(...[
+      el('h1', { class: 'hero__title', id: 'gameTitle', text: g.title }),
+      g.subtitle ? el('p', { class: 'hero__subtitle', text: g.subtitle }) : null,
+      meta,
+      actions,
+    ].filter(Boolean));
+    if (v0) {
+      body.append(el('p', { class: 'hero__caption' }, [
+        v0.title ? el('strong', { text: v0.title }) : null,
+        v0.caption ? el('span', { text: v0.caption }) : null,
+      ]));
+    } else if (im0 && im0.caption) {
+      body.append(el('p', { class: 'hero__caption' }, el('span', { text: im0.caption })));
+    }
+    hero.append(stage, body);
+    p.stage = stage;
+    return hero;
   };
-  const closeNow = () => { sheet.close(); finishClose(); };
-  const closeSheet = () => {
-    if (!sheet.open || closing) return;
-    if (!motionOn()) { closeNow(); return; }
-    closing = true;
-    sheet.classList.add('is-closing');
-    closeTimer = window.setTimeout(() => { if (sheet.open) closeNow(); }, 300);
+
+  const factRows = (g) => {
+    const rows = [['status', '상태', g.status]];
+    if (g.period) rows.push(['period', '기간', g.period]);
+    else if (g.year) rows.push(['year', '연도', g.year]);
+    rows.push(['engine', '엔진', g.engine], ['category', '분류', g.category], ['team', '팀', g.team], ['role', '역할', g.role]);
+    const tools = texts(g.tools);
+    if (tools.length) rows.push(['tools', '도구', tools.join(' · ')]);
+    return el('dl', { class: 'project-facts' }, rows.filter((r) => r[2]).map(([key, label, value]) =>
+      el('div', { class: 'fact', 'data-fact': key }, [el('dt', { text: label }), el('dd', { text: String(value) })])));
   };
-  sheet.addEventListener('cancel', (e) => {
-    e.preventDefault();
-    closeSheet();
-  });
-  sheet.addEventListener('close', finishClose);
-  $('#sheetClose').addEventListener('click', closeSheet);
-  sheet.addEventListener('click', (e) => {
-    if (e.target !== sheet) return;
-    const r = sheet.getBoundingClientRect();
-    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    if (!inside) closeSheet();
-  });
+
+  const buildWork = (g) => {
+    const features = texts(g.features);
+    const details = detailsOf(g);
+    const more = [];
+    if (features.length) {
+      more.push(
+        el('h3', { class: 'work__label', text: '주요 기능' }),
+        el('ul', { class: 'feature-list' }, features.map((f) => el('li', { text: f }))),
+      );
+    }
+    if (details.length) {
+      more.push(
+        el('h3', { class: 'work__label', text: '상세 해설' }),
+        el('div', { class: 'detail-list' }, details.map((d) => el('section', { class: 'detail' }, [
+          el('h3', { text: d.title }),
+          el('p', { text: d.text }),
+        ]))),
+      );
+    }
+    return el('section', { id: 'work', class: 'work section', 'aria-labelledby': 'workTitle', tabindex: '-1' }, [
+      sectionHead('workTitle', '작업 내용'),
+      el('div', { class: 'work__lead', 'data-reveal': true }, [
+        g.description ? el('p', { class: 'project-description', text: g.description }) : null,
+        factRows(g),
+      ]),
+      more.length ? el('div', { class: 'work__more', 'data-reveal': true }, more) : null,
+    ]);
+  };
+
+  const buildDevelopment = (g) => {
+    const entries = texts(g.history);
+    if (!entries.length) return null;
+    return el('section', { id: 'development', class: 'development section', 'aria-labelledby': 'developmentTitle', tabindex: '-1' }, [
+      sectionHead('developmentTitle', '개발 기록'),
+      el('ol', { class: 'history-list', 'data-reveal': true }, entries.map((h) => {
+        const m = /^(.+?) · (.+)$/.exec(h);
+        if (!m) return el('li', { text: h });
+        return el('li', {}, [
+          el('span', { class: 'history__when', text: m[1] }),
+          el('span', { class: 'history__sep', text: ' · ' }),
+          el('span', { class: 'history__what', text: m[2] }),
+        ]);
+      })),
+    ]);
+  };
+
+  const buildMedia = (g, p, on) => {
+    const videos = videosOf(g);
+    const images = imagesOf(g);
+    const failNote = (fig, msg) => {
+      fig.classList.add('is-error');
+      const cap = fig.querySelector('figcaption');
+      if (cap && !cap.querySelector('.media__error')) cap.append(el('p', { class: 'media__error', text: msg }));
+    };
+    const children = [sectionHead('mediaTitle', '영상과 화면')];
+    if (!videos.length && !images.length) {
+      children.push(el('p', { class: 'section__note', text: '확보한 실행 화면과 영상이 없습니다. 다른 게임의 화면을 대신 쓰지 않습니다.' }));
+    } else if (!videos.length) {
+      children.push(el('p', { class: 'section__note', text: `등록된 영상이 없어 화면 캡처 ${images.length}장만 싣습니다.` }));
+    } else if (!images.length) {
+      children.push(el('p', { class: 'section__note', text: '등록된 화면 캡처가 없어 영상만 싣습니다.' }));
+    }
+    if (videos.length) {
+      children.push(el('div', { class: 'video-list', 'data-count': videos.length }, videos.map((m, i) => {
+        const video = el('video', {
+          controls: true,
+          playsinline: true,
+          preload: 'none',
+          poster: m.poster || null,
+          'aria-label': m.title || `${g.title} 영상 ${i + 1}`,
+        });
+        video.playsInline = true;
+        video.src = m.src;
+        const fig = el('figure', { class: 'media media--video', 'data-reveal': true }, [
+          video,
+          el('figcaption', {}, [m.title ? el('strong', { text: m.title }) : null, m.caption ? el('span', { text: m.caption }) : null]),
+        ]);
+        fig.style.setProperty('--i', i);
+        on(video, 'loadedmetadata', () => setFormat(fig, video.videoWidth, video.videoHeight));
+        on(video, 'error', () => failNote(fig, '영상을 불러오지 못했습니다. 새로고침 후 다시 재생해 주세요.'));
+        p.bodyVideos.push(video);
+        return fig;
+      })));
+    }
+    if (images.length) {
+      children.push(el('div', { class: 'image-gallery', 'data-count': images.length }, images.map((m, i) => {
+        const img = el('img', { loading: 'lazy', decoding: 'async', alt: m.alt || '', src: m.src });
+        if (m.pos) img.style.objectPosition = m.pos;
+        const fig = el('figure', { class: 'media media--image', 'data-reveal': true }, [img, el('figcaption', { text: m.caption || null })]);
+        fig.style.setProperty('--i', i);
+        on(img, 'load', () => setFormat(fig, img.naturalWidth, img.naturalHeight));
+        on(img, 'error', () => failNote(fig, '이미지를 불러오지 못했습니다. 새로고침 후 다시 확인해 주세요.'));
+        if (img.complete && img.naturalWidth) setFormat(fig, img.naturalWidth, img.naturalHeight);
+        return fig;
+      })));
+    }
+    return el('section', { id: 'media', class: 'media-section section', 'aria-labelledby': 'mediaTitle', tabindex: '-1' }, children);
+  };
+
+  const render = (g) => {
+    destroyPage();
+    const p = {
+      id: g.id,
+      ctl: new AbortController(),
+      observers: [],
+      reveal: makeRevealer(),
+      sections: new Map(),
+      root: null,
+      stage: null,
+      video: null,
+      toggle: null,
+      sound: null,
+      bodyVideos: [],
+      pending: false,
+      held: false,
+      visible: true,
+      userPlayed: false,
+      blocked: false,
+      failed: false,
+    };
+    const on = (target, type, fn) => target.addEventListener(type, fn, { signal: p.ctl.signal });
+    const hero = buildHero(g, p, on);
+    const work = buildWork(g);
+    const development = buildDevelopment(g);
+    const media = buildMedia(g, p, on);
+    const article = el('article', { class: 'project', 'data-game': g.id, 'data-final': isFinal(g) ? 'true' : null, 'aria-labelledby': 'gameTitle' },
+      [hero, work, development, media]);
+    p.root = article;
+    p.sections.set('intro', hero).set('work', work);
+    if (development) p.sections.set('development', development);
+    p.sections.set('media', media);
+    if (notesSection && !notesSection.hidden) p.sections.set('notes', notesSection);
+    state.page = p;
+    state.id = g.id;
+    projectRoot.replaceChildren(article);
+
+    article.querySelectorAll('[data-reveal]').forEach((n) => p.reveal.observe(n));
+
+    if ('IntersectionObserver' in window) {
+      if (p.video) {
+        const heroIO = new IntersectionObserver((entries) => {
+          const entry = entries[entries.length - 1];
+          const visible = entry.isIntersecting && entry.intersectionRatio >= 0.2;
+          if (visible === p.visible) return;
+          p.visible = visible; // leaving the screen pauses without touching the visitor's own choice
+          syncHero();
+        }, { threshold: [0, 0.2] });
+        heroIO.observe(p.stage);
+        p.observers.push(heroIO);
+      }
+      if (p.bodyVideos.length) {
+        const bodyIO = new IntersectionObserver((entries) => {
+          for (const entry of entries) if (!entry.isIntersecting && !entry.target.paused) entry.target.pause();
+        });
+        p.bodyVideos.forEach((v) => bodyIO.observe(v));
+        p.observers.push(bodyIO);
+      }
+    }
+  };
+
+  /* ---------- routes: #p=<id>[&section=<name>] ---------- */
+  function hrefFor(id, section) {
+    return `#p=${encodeURIComponent(id)}${section && section !== 'intro' ? `&section=${section}` : ''}`;
+  }
+  const rootUrl = () => location.pathname + location.search;
+
+  // Turns any hash into the game and section to show, plus the address that names them.
+  const resolve = (hash, fallbackId) => {
+    const raw = String(hash || '').replace(/^#/, '');
+    if (!raw) return { id: fallbackId, section: '', url: fallbackId === defaultId ? '' : hrefFor(fallbackId, '') };
+    if (/^p=/.test(raw)) {
+      const params = new URLSearchParams(raw);
+      const asked = params.get('p') || '';
+      const known = byId.has(asked);
+      const id = known ? asked : fallbackId;
+      const sec = params.get('section') || '';
+      const section = known && sec !== 'intro' && hasSection(byId.get(id), sec) ? sec : '';
+      return { id, section, url: hrefFor(id, section), unknown: !known };
+    }
+    let name = raw;
+    try { name = decodeURIComponent(raw); } catch (e) { /* keep raw */ }
+    const section = name !== 'intro' && hasSection(byId.get(fallbackId), name) ? name : '';
+    return { id: fallbackId, section, url: section ? hrefFor(fallbackId, section) : (fallbackId === defaultId && !state.id ? '' : hrefFor(fallbackId, '')) };
+  };
+
+  const writeHistory = (mode, url, extra) => {
+    const st = { ...(mode === 'replace' && history.state && typeof history.state === 'object' ? history.state : {}), cat: state.cat, ...extra };
+    try {
+      if (mode === 'push') history.pushState(st, '', url || rootUrl());
+      else history.replaceState(st, '', url === undefined ? location.href : url || rootUrl());
+    } catch (e) { /* some file:// contexts refuse history writes; the page still changes */ }
+    appliedHash = location.hash;
+  };
+
+  const syncPickers = () => {
+    if (catSelect) catSelect.value = state.cat;
+    fillGames(state.cat);
+    if (gameSelect) gameSelect.value = state.id;
+  };
+  const syncLinks = () => {
+    const g = byId.get(state.id);
+    for (const a of document.querySelectorAll('a[data-section]')) {
+      const s = a.dataset.section;
+      a.setAttribute('href', hrefFor(state.id, s));
+      if (!a.closest('#projectRoot')) a.hidden = !hasSection(g, s) || (s === 'notes' && !!notesSection && notesSection.hidden);
+    }
+  };
+
+  let spyFrame = 0;
+  const spy = () => {
+    spyFrame = 0;
+    const p = state.page;
+    if (!p || !sectionNav) return;
+    const line = headerOffset() + Math.min(window.innerHeight * 0.3, 260);
+    let active = 'intro';
+    for (const [name, node] of p.sections) if (node.getBoundingClientRect().top <= line) active = name;
+    if (window.scrollY > 0 && window.innerHeight + window.scrollY >= html.scrollHeight - 2) active = [...p.sections.keys()].pop();
+    for (const a of sectionNav.querySelectorAll('a[data-section]')) {
+      if (a.dataset.section === active) a.setAttribute('aria-current', 'location');
+      else a.removeAttribute('aria-current');
+    }
+  };
+  const queueSpy = () => { if (!spyFrame) spyFrame = window.requestAnimationFrame(spy); };
+  window.addEventListener('scroll', queueSpy, { passive: true });
+  window.addEventListener('resize', queueSpy);
+
+  const focusNode = (node) => {
+    if (!node) return;
+    if (!node.hasAttribute('tabindex')) node.setAttribute('tabindex', '-1');
+    node.focus({ preventScroll: true });
+  };
+
+  // Shows game `id` (rendering only when it changed), then places the reading position.
+  const apply = (id, section, { announce = '', focus = false, restoreY = null } = {}) => {
+    const g = byId.get(id);
+    const changed = id !== state.id;
+    if (changed) {
+      render(g);
+      document.title = `${g.title} · ${SITE_TITLE}`;
+    }
+    syncPickers();
+    syncLinks();
+    let target = null;
+    if (restoreY != null) scrollToY(restoreY);
+    else target = scrollToSection(section || 'intro');
+    if (focus && target) focusNode(target);
+    const p = state.page;
+    if (p && p.stage) {
+      const r = p.stage.getBoundingClientRect();
+      p.visible = r.bottom - headerOffset() > r.height * 0.2 && r.top < window.innerHeight;
+    }
+    syncHero();
+    queueSpy();
+    if (changed && announce) say(announce);
+  };
+
+  const gameMessage = (g) => `${g.title} 작품 페이지를 열었습니다. ${isFinal(g) ? '최종 프로젝트 · ' : ''}${g.category || ''}`.trim();
+
+  const saveScroll = () => {
+    try { history.replaceState({ ...(history.state && typeof history.state === 'object' ? history.state : {}), y: window.scrollY }, ''); } catch (e) { /* ignore */ }
+  };
+
+  // Visitor-driven navigation: one history entry per destination, never two for one action.
+  const go = (id, section, { focus = false, prefix = '' } = {}) => {
+    if (!byId.has(id)) return;
+    const url = hrefFor(id, section);
+    const current = resolve(location.hash, state.id || defaultId);
+    const same = current.id === id && (current.section || '') === (section === 'intro' ? '' : section || '');
+    if (!same) saveScroll();
+    writeHistory(same ? 'replace' : 'push', url, { y: null });
+    const g = byId.get(id);
+    apply(id, section, { focus, announce: `${prefix}${gameMessage(g)}` });
+  };
+
+  // Back, Forward, a typed or followed hash: show what the address names, keep the category consistent.
+  const onLocation = () => {
+    if (location.hash === appliedHash) return;
+    const r = resolve(location.hash, location.hash ? state.id || defaultId : defaultId);
+    const st = history.state && typeof history.state === 'object' ? history.state : null;
+    const g = byId.get(r.id);
+    state.cat = st && validCat(st.cat) && inCat(g, st.cat) ? st.cat : inCat(g, state.cat) ? state.cat : CAT_ALL;
+    const sameGame = r.id === state.id;
+    const restoreY = sameGame && st && typeof st.y === 'number' ? st.y : null;
+    writeHistory('replace', r.url !== location.hash ? r.url : undefined, {});
+    apply(r.id, r.section, { announce: r.unknown ? `요청한 작품을 찾지 못했습니다. ${gameMessage(g)}` : gameMessage(g), restoreY });
+  };
+  window.addEventListener('popstate', onLocation);
+  window.addEventListener('hashchange', onLocation);
+
+  if (gameSelect) {
+    gameSelect.addEventListener('change', () => {
+      const id = gameSelect.value;
+      if (!byId.has(id) || id === state.id) return;
+      go(id, '');
+    });
+  }
+  if (catSelect) {
+    catSelect.addEventListener('change', () => {
+      const cat = catSelect.value;
+      if (!validCat(cat)) return;
+      state.cat = cat;
+      const items = gamesIn(cat);
+      const prefix = `${catLabel(cat)} 분류 ${items.length}편. `;
+      if (inCat(byId.get(state.id), cat)) {
+        syncPickers();
+        writeHistory('replace', undefined, {});
+        say(`${prefix}${byId.get(state.id).title} 작품은 그대로 둡니다.`);
+      } else {
+        go(items[0].id, '', { prefix });
+      }
+    });
+  }
+
   document.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-open]');
-    if (b) openSheet(b.dataset.open, b);
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const a = e.target instanceof Element ? e.target.closest('a[href^="#"]') : null;
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (a.dataset.section && SECTIONS.includes(a.dataset.section)) {
+      e.preventDefault();
+      const s = a.dataset.section;
+      go(state.id, hasSection(byId.get(state.id), s) ? s : '', { focus: true });
+      return;
+    }
+    if (/^#p=/.test(href)) {
+      e.preventDefault();
+      const r = resolve(href, state.id);
+      go(r.id, r.section, { focus: !!r.section });
+      return;
+    }
+    let name = href.slice(1);
+    try { name = decodeURIComponent(name); } catch (err) { /* keep raw */ }
+    if (SECTIONS.includes(name)) {
+      e.preventDefault();
+      go(state.id, hasSection(byId.get(state.id), name) ? name : '', { focus: true });
+      return;
+    }
+    // Other in-page targets (skip link, back-to-top): move there without dropping the game from the address.
+    e.preventDefault();
+    const target = name ? document.getElementById(name) : null;
+    if (!target || name === 'top') { scrollToY(0); return; }
+    if (target === main) { focusNode(main); return; }
+    scrollToY(target.getBoundingClientRect().top + window.scrollY - headerOffset());
+    focusNode(target);
   });
 
-  setStage('reel', 'down');
-  pendingKey = 'reel';
-  queueFrame();
-
-  // The address follows the sheet: Back closes it, Forward or a #p=<id> link opens it.
-  window.addEventListener('hashchange', () => {
-    const ownBack = awaitingBack;
-    awaitingBack = false;
-    const id = hashId();
-    if (id) {
-      if (!sheet.open || closing || id !== shownId) openSheet(id, opener && opener.dataset.open === id ? opener : null, true);
-    } else {
-      if (sheet.open) closeSheet();
-      else if (ownBack) restoreScroll();
-      try { history.scrollRestoration = 'auto'; } catch (e) { /* ignore */ }
-    }
-    if (queuedOpen) {
-      const q = queuedOpen;
-      queuedOpen = null;
-      openSheet(q.id, q.from);
-    }
-  });
-
-  // #p=<id> opens a project directly (shareable link to a detail).
-  if (hashId()) openSheet(hashId(), null, true);
+  /* ---------- start ---------- */
+  try { history.scrollRestoration = 'manual'; } catch (e) { /* ignore */ }
+  {
+    const r = resolve(location.hash, defaultId);
+    const st = history.state && typeof history.state === 'object' ? history.state : null;
+    const g = byId.get(r.id);
+    state.cat = st && validCat(st.cat) && inCat(g, st.cat) ? st.cat : CAT_ALL;
+    writeHistory('replace', r.url !== location.hash ? r.url : undefined, {});
+    apply(r.id, r.section, { announce: r.unknown ? `요청한 작품을 찾지 못했습니다. ${gameMessage(g)}` : '' });
+  }
 })();
