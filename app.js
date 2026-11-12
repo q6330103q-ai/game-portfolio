@@ -87,6 +87,8 @@
     node.textContent = '0';
     const start = performance.now() + delay;
     const step = (now) => {
+      // Motion switched off mid-count: land on the real number at once.
+      if (!motionOn()) { node.textContent = String(to); return; }
       const t = Math.min(1, Math.max(0, (now - start) / duration));
       const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
       node.textContent = String(Math.round(to * eased));
@@ -431,6 +433,8 @@
     card: null,
     timerAnim: null,
     paused: !motionOn(),
+    userPaused: false, // the visitor pressed 멈춤; motion coming back on must not undo that
+    held: false, // a detail video the visitor started is playing; the stage stays still under it
     visible: true,
     mode: '',
     reelIndex: 0,
@@ -497,12 +501,15 @@
     return { node: card.node, card };
   };
 
-  const playbackAllowed = () => !stage.paused && stage.visible && !document.hidden;
+  const playbackAllowed = () => !stage.paused && !stage.held && stage.visible && !document.hidden;
   const playFront = () => {
-    const v = stage.layers[stage.front].querySelector('video');
-    if (!v) return;
-    if (playbackAllowed()) v.play().catch(() => {});
-    else v.pause();
+    if (playbackAllowed()) {
+      const v = stage.layers[stage.front].querySelector('video');
+      if (v) v.play().catch(() => {});
+      return;
+    }
+    // Held or paused: the outgoing layer's clip stops too, not only the one in front.
+    for (const v of stageEl.querySelectorAll('.stage__layer video')) v.pause();
   };
   const holdAnimations = () => {
     const run = playbackAllowed();
@@ -640,13 +647,14 @@
   };
   toggle.addEventListener('click', () => {
     stage.paused = !stage.paused;
+    stage.userPaused = stage.paused;
     syncToggle();
     refreshPlayback();
   });
   syncToggle();
 
   motionListeners.push((on) => {
-    stage.paused = !on;
+    stage.paused = !on || stage.userPaused;
     syncToggle();
     refreshPlayback();
   });
@@ -656,8 +664,7 @@
       window.clearTimeout(stage.timer);
       stopTimerBar();
       stopCard();
-      const v = stage.layers[stage.front].querySelector('video');
-      if (v) v.pause();
+      playFront();
       document.querySelectorAll('.sheet video').forEach((sv) => sv.pause());
       holdAnimations();
     } else refreshPlayback();
@@ -739,12 +746,56 @@
   let closing = false;
   let closeTimer = 0;
   let sheetCardTimer = 0;
+  let sheetCard = null;
+  let shownId = '';
+  // History: opening a detail adds one #p=<id> entry, so Back closes it and Forward reopens it.
+  // DOC_KEY marks entries this page load pushed; only those are popped again when the sheet closes.
+  const DOC_KEY = Math.random().toString(36).slice(2);
+  let awaitingBack = false;
+  let queuedOpen = null;
+  // The reading position the detail opened from. The browser's own restore on Back is switched off
+  // for these entries (it may hold a mid-scroll value); closing returns here instead.
+  let returnY = 0;
+  const restoreScroll = () => window.scrollTo({ top: returnY, behavior: 'instant' });
+  const hashId = () => {
+    const m = /^#p=([\w-]+)$/.exec(location.hash);
+    return m && byId.has(m[1]) ? m[1] : '';
+  };
 
   const sheetVideoObserver = 'IntersectionObserver' in window
     ? new IntersectionObserver((list) => {
         for (const entry of list) if (!entry.isIntersecting && !entry.target.paused) entry.target.pause();
       }, { root: sheet, threshold: 0.2 })
     : null;
+
+  // One detail video plays at a time, and the stage holds still under it.
+  sheetBody.addEventListener('play', (e) => {
+    if (e.target.tagName !== 'VIDEO') return;
+    for (const v of sheetBody.querySelectorAll('video')) if (v !== e.target && !v.paused) v.pause();
+    if (!stage.held) { stage.held = true; refreshPlayback(); }
+  }, true);
+  const releaseStage = () => {
+    if (!stage.held || [...sheetBody.querySelectorAll('video')].some((v) => !v.paused)) return;
+    stage.held = false;
+    refreshPlayback();
+  };
+  sheetBody.addEventListener('pause', releaseStage, true);
+  sheetBody.addEventListener('ended', releaseStage, true);
+
+  const startSheetCard = () => {
+    window.clearInterval(sheetCardTimer);
+    if (sheet.open && sheetCard && sheetCard.lines.length > 1 && motionOn()) {
+      sheetCardTimer = window.setInterval(() => rotateCard(sheetCard), CARD_LINE_MS);
+    }
+  };
+  motionListeners.push(startSheetCard);
+
+  // On narrow screens the sheet opens under the stage band, so the project keeps playing above it.
+  const syncSheetTop = () => {
+    const bandBottom = splitMQ.matches ? 0 : Math.max(0, Math.round(stageEl.getBoundingClientRect().bottom));
+    html.style.setProperty('--sheet-top', `${bandBottom}px`);
+  };
+  window.addEventListener('resize', () => { if (sheet.open) syncSheetTop(); });
 
   const mediaFigure = (kind, item, lazy) => {
     const media = kind === 'video'
@@ -759,13 +810,19 @@
     return fig;
   };
 
-  const openSheet = (id, from) => {
+  const openSheet = (id, from, routed = false) => {
     const g = byId.get(id);
     if (!g) return;
+    // A close is still stepping back through history; open once that lands.
+    if (awaitingBack && !routed) { queuedOpen = { id, from }; return; }
     window.clearTimeout(closeTimer);
     closing = false;
     sheet.classList.remove('is-closing');
     opener = from || null;
+    if (!sheet.open) {
+      window.scrollTo({ top: window.scrollY, behavior: 'instant' }); // settle any smooth scroll still running
+      returnY = window.scrollY;
+    }
     const isFinal = g.final === true;
     $('#sheetCrumb').replaceChildren(
       ...(isFinal ? [el('strong', { text: '최종 프로젝트' }), ' · '] : []),
@@ -821,47 +878,69 @@
       if (n < 10) { child.classList.add('s-item'); child.style.setProperty('--i', n); }
       n += 1;
     }
+    sheet.querySelectorAll('video').forEach((v) => v.pause());
     sheetBody.replaceChildren(...children);
+    if (stage.held) { stage.held = false; refreshPlayback(); }
     sheetBody.querySelectorAll('.gallery .media').forEach((fig, i) => { if (i > 0) reveal(fig); });
-
-    window.clearInterval(sheetCardTimer);
-    if (card && card.lines.length > 1 && motionOn()) sheetCardTimer = window.setInterval(() => rotateCard(card), CARD_LINE_MS);
+    sheetCard = card;
+    shownId = g.id;
 
     pendingKey = g.id;
     setStage(g.id, 'next');
-    // On narrow screens the sheet opens under the stage band, so the project keeps playing above it.
-    const bandBottom = splitMQ.matches ? 0 : Math.max(0, Math.round(stageEl.getBoundingClientRect().bottom));
-    html.style.setProperty('--sheet-top', `${bandBottom}px`);
-    if (!sheet.open) sheet.showModal();
+    syncSheetTop();
+    const wasOpen = sheet.open;
+    if (!wasOpen) sheet.showModal();
     sheet.scrollTop = 0;
     $('#sheetClose').focus();
-    try { history.replaceState(null, '', `#p=${g.id}`); } catch (e) { /* file:// may refuse; the sheet still opens */ }
+    startSheetCard();
+    if (!routed && location.hash !== `#p=${g.id}`) {
+      // Switching projects inside an open sheet reuses its entry; Back still closes in one step.
+      const ours = wasOpen && history.state && history.state.doc === DOC_KEY;
+      try {
+        if (!ours) history.scrollRestoration = 'manual';
+        history[ours ? 'replaceState' : 'pushState']({ sheet: g.id, doc: DOC_KEY }, '', `#p=${g.id}`);
+      } catch (e) { /* file:// may refuse; the sheet still opens */ }
+    }
   };
 
-  const closeSheet = () => {
-    if (!sheet.open || closing) return;
-    if (!motionOn()) { sheet.close(); return; }
-    closing = true;
-    sheet.classList.add('is-closing');
-    closeTimer = window.setTimeout(() => { if (sheet.open) sheet.close(); }, 300);
-  };
-  sheet.addEventListener('cancel', (e) => {
-    e.preventDefault();
-    closeSheet();
-  });
-  sheet.addEventListener('close', () => {
+  // Runs right after every close (ours, or the browser's own on a repeated Esc); the dialog's
+  // close event arrives a task later and must not undo a sheet that has opened again since.
+  const finishClose = () => {
+    if (!shownId || sheet.open) return;
     window.clearTimeout(closeTimer);
     window.clearInterval(sheetCardTimer);
     closing = false;
     sheet.classList.remove('is-closing');
     sheet.querySelectorAll('video').forEach((v) => v.pause());
+    releaseStage();
+    // Closed by the button, Esc or the backdrop while the address still names this detail:
+    // step back off the entry we pushed, or tidy a deep link's address in place.
     try {
-      if (/^#p=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
+      if (location.hash === `#p=${shownId}`) {
+        const st = history.state;
+        if (st && st.doc === DOC_KEY && st.sheet === shownId) { awaitingBack = true; history.back(); }
+        else history.replaceState(null, '', location.pathname + location.search);
+      }
     } catch (e) { /* ignore */ }
+    shownId = '';
     if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
+    restoreScroll();
     pendingKey = '';
     queueFrame();
+  };
+  const closeNow = () => { sheet.close(); finishClose(); };
+  const closeSheet = () => {
+    if (!sheet.open || closing) return;
+    if (!motionOn()) { closeNow(); return; }
+    closing = true;
+    sheet.classList.add('is-closing');
+    closeTimer = window.setTimeout(() => { if (sheet.open) closeNow(); }, 300);
+  };
+  sheet.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    closeSheet();
   });
+  sheet.addEventListener('close', finishClose);
   $('#sheetClose').addEventListener('click', closeSheet);
   sheet.addEventListener('click', (e) => {
     if (e.target !== sheet) return;
@@ -878,7 +957,25 @@
   pendingKey = 'reel';
   queueFrame();
 
+  // The address follows the sheet: Back closes it, Forward or a #p=<id> link opens it.
+  window.addEventListener('hashchange', () => {
+    const ownBack = awaitingBack;
+    awaitingBack = false;
+    const id = hashId();
+    if (id) {
+      if (!sheet.open || closing || id !== shownId) openSheet(id, opener && opener.dataset.open === id ? opener : null, true);
+    } else {
+      if (sheet.open) closeSheet();
+      else if (ownBack) restoreScroll();
+      try { history.scrollRestoration = 'auto'; } catch (e) { /* ignore */ }
+    }
+    if (queuedOpen) {
+      const q = queuedOpen;
+      queuedOpen = null;
+      openSheet(q.id, q.from);
+    }
+  });
+
   // #p=<id> opens a project directly (shareable link to a detail).
-  const hashMatch = /^#p=([\w-]+)$/.exec(location.hash);
-  if (hashMatch && byId.has(hashMatch[1])) openSheet(hashMatch[1]);
+  if (hashId()) openSheet(hashId(), null, true);
 })();
